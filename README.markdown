@@ -29,14 +29,21 @@ RBBugReporter * reporter = [[RBBugReporter alloc] initWithErrorMessage:@"Testing
 RBBugReporter includes a method for presenting simple messages to users. These messages are intended to present information or notify of errors where no immediate action is required. The following is an example:
 
 ```objective-c
-[RBBugReporter presentAlertWithTitle:@"Testing" message:@"Testing simple message presentation."];
+[RBBugReporter presentAlertWithTitle:@"Testing" 
+                             message:@"Testing simple message presentation."];
 ```
 
 ##Logging errors
 Logging errors are made very easy. Just pass the error to RBBugReporter.
 
 ```objective-c
-[RBBugReporter logError:error];
+NSError error = nil;
+
+// Some code that might generate an error.
+
+if (error) {
+	[RBBugReporter logError:error];
+}
 ```
 
 ##Flurry
@@ -51,15 +58,19 @@ In addition to standard reporting methods, RBBugReporter provides and optional w
 There are several simple methods for Flurry. RBBugReporter can log errors, exceptions, and events. The following gives examples of each.
 
 ```objective-c
+// Simple error reporting.
 [RBBugReporter sendFlurryReportWithError:error];
 
+// Customized error reporting.
 [RBBugReporter sendFlurryReportWithTitle:@"Error"
-                                     message:@"An error occurred"
-                                       error:error];
+                                 message:@"An error occurred"
+                                   error:error];
 
+// Customized exception reporting.
 [RBBugReporter sendFlurryReportWithTitle:@"Error"
-                                     message:@"An error occurred"
-                                   exception:exception];
+                                 message:@"An error occurred"
+                               exception:exception];
 
+// Simple event logging.
 [RBBugReporter logFlurryEvent:anEventName];
 ```
