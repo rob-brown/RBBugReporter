@@ -35,6 +35,8 @@ enum BugReporterAlertButton {
     kBugReportActionReport,
 };
 
+NSString * const kReportEmail = @"MyEmail@example.com";
+
 // ???: Should I set the UINavigationControllerDelegate so I can watch the view controller pops?
 // This could prevent memory leaks when the mail composser is force popped externally.
 // I should also keep the previous delegate around, if any, so that it can still receive messages.
@@ -98,7 +100,7 @@ enum BugReporterAlertButton {
     [self setNavController:aNavController];
     
     // Sets up the defaults for all the strings.
-    [self setRecipients:[NSArray arrayWithObject:@"MyEmail@example.com"]];
+    [self setRecipients:[NSArray arrayWithObject:kReportEmail]];
     [self setSubjectLine:@"Bug Report"];
     [self setCommentHeader:@"[[Comments]]"];
     [self setErrorHeader:@"[[Error]]"];
