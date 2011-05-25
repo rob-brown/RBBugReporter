@@ -4,24 +4,33 @@
 `RBBugReporter` is a class to make it easy to receive error reports, notify users of errors, and log errors. `RBBugReporter` also includes support for Flurry. 
 
 ##Dependencies
-`RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras` and `UIViewController+RBExtras`. They can be found in my RBCategories repository.
+`RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, and `NSString+RBExtras`. They can be found in my [RBCategories repository][1].
+
+  [1]: https://github.com/rob-brown/RBCategories
 
 Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at Flurry.com
 
-##Receiving email reports
-One of the standard ways for a user to report bugs is through email. `RBBugReporter` provides a template email composer. The email message is broken into several parts consisting of comments, errors, and device info. Each part has default values and can be modified through various accessors. 
+##Generating email reports
+One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][2]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
 
-There is also a standard alert view that can be presented which asks the user if they want to report a bug. Alternatively, you can present the mail composer in another way. The following gives an example of each. 
+  [2]: http://www.amazon.com/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612/ref=sr_1_1?ie=UTF8&qid=1306283437&sr=8-1
+
+##Receiving email reports
+`RBBugReporter` provides a template email composer. It has two different ways it can be presented. There is a standard alert view that can be presented which asks the user if they want to report a bug. Alternatively, you can present the mail composer directly in response to whatever action you choose. The following gives an example of each. 
 
 ```objective-c
 // Presents an alert that asks the user to report a bug. If they accept, then the email composer is presented.
-RBBugReporter * reporter = [[RBBugReporter alloc] initWithError:error];
-[reporter presentBugAlert];
+RBBugReportEmailBuilder * builder [[RBBugReportEmailBuilder alloc] initWithError:error];
+RBBugReporter * reporter = [[RBBugReporter alloc] init];
+[reporter presentBugAlertWithBuilder:builder];
+[builder release];
 [reporter release];
 
 // Presents the email composer directly. This could be in response to the user pressing a bug report button or by some other means.
+RBBugReportEmailBuilder * builder [[RBBugReportEmailBuilder alloc] initWithErrorMessage:@"Testing reporter"];
 RBBugReporter * reporter = [[RBBugReporter alloc] initWithErrorMessage:@"Testing reporter"];
-[reporter presentBugReportComposer];
+[reporter presentBugReportComposerWithBuilder:builder];
+[builder release];
 [reporter release];
 ```
 
