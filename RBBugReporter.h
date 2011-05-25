@@ -25,63 +25,14 @@
 #import <Foundation/Foundation.h>
 #import <MessageUI/MFMailComposeViewController.h>
 
+#import "RBEmailBuilder.h"
+
 /**
  * A class for generating bug reports, logging errors, etc. Includes support for 
  * Flurry. The bug reporter comes with many defaults which can be overriden as
  * necessary through various accessor methods.
  */
 @interface RBBugReporter : NSObject <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
-
-// -----------------------------------------------------------------------------
-// Customizable Properties
-// -----------------------------------------------------------------------------
-
-/**
- * An array of NSStrings that hold the email addresses of all recipients for the
- * bug report email.
- */
-@property (nonatomic, retain) NSArray * recipients;
-
-/**
- * The subject line of the bug report email.
- */
-@property (nonatomic, copy) NSString * subjectLine;
-
-/**
- * Part of the bug report email message. This string is shown just before the 
- * commentMsg.
- */
-@property (nonatomic, copy) NSString * commentHeader;
-
-/**
- * Part of the bug report email message. This string is shown just before the 
- * errorMsg.
- */
-@property (nonatomic, copy) NSString * errorHeader;
-
-/**
- * Part of the bug report email message. This string is shown just before the 
- * deviceMsg.
- */
-@property (nonatomic, copy) NSString * deviceHeader;
-
-/**
- * Part of the bug report email message. This string is to give instructions how 
- * the user is to provide feedback.
- */
-@property (nonatomic, copy) NSString * commentMsg;
-
-/**
- * Part of the bug report email message. This string is to provide error 
- * details.
- */
-@property (nonatomic, copy) NSString * errMsg;
-
-/**
- * Part of the bug report email message. This string provides details on the 
- * device the user is using.
- */
-@property (nonatomic, copy) NSString * deviceMsg;
 
 /**
  * The message body of the alert view presented when calling presentBugAlert.
@@ -95,23 +46,10 @@
  */
 @property (nonatomic, retain) UINavigationController * navController;
 
-// -----------------------------------------------------------------------------
-// Initializers
-// -----------------------------------------------------------------------------
-
 /**
- * Creates a bug report from the given error.
- *
- * @param error The error to generate the bug report from.
+ * Class the generates the email to be presented.
  */
-- (id) initWithError:(NSError *)error;
-
-/**
- * Creates a bug report from the given string.
- *
- * @param msg The error message to use with the bug report.
- */
-- (id) initWithErrorMessage:(NSString *)msg;
+@property (nonatomic, retain) id<RBEmailBuilder> emailBuilder;
 
 // -----------------------------------------------------------------------------
 // Reporting/Logging Methods
@@ -121,7 +59,7 @@
  * Presents an alert view which asks the user if they want to report a bug. If 
  * the user wants to report a bug, then an email composer is presented.
  */
-- (void) presentBugAlert;
+- (void) presentBugAlertWithBuilder:(id<RBEmailBuilder>)builder;
 
 /**
  * Generates and presents the email composer modally. This is 3.0 compatible.
@@ -129,7 +67,7 @@
  * This may be accessed directly if you don't want to use -presentBugAlert 
  * before presenting the mail composer.
  */
-- (void) presentBugReportComposer;
+- (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder;
 
 /**
  * Presents a simple alert view with only a cancel button with no actions. Used
