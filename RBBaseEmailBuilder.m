@@ -32,7 +32,7 @@ static NSString * const kDefaultEmail = @"MyEmail@example.com";
 
 @implementation RBBaseEmailBuilder
 
-@synthesize recipients, subjectLine;
+@synthesize recipients, subjectLine, html;
 
 - (id)init {
     
@@ -49,6 +49,12 @@ static NSString * const kDefaultEmail = @"MyEmail@example.com";
     
     // This should be overriden by subclasses.
     return @"";
+}
+
+- (NSArray *)attachments {
+    
+    // Returns no attachments. Override this if you want to provide attachments.
+    return [NSArray array];
 }
 
 - (void)dealloc {

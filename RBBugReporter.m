@@ -23,6 +23,7 @@
 //
 
 #import "RBBugReporter.h"
+#import "RBAttachment.h"
 #import "UIWindow+RBExtras.h"
 #import "NSString+RBExtras.h"
 
@@ -99,7 +100,16 @@ static NSString * const kBugReportActionReport = @"Report";
     [mailComposer setSubject:[builder subjectLine]];
     [mailComposer setToRecipients:[builder recipients]];
     [mailComposer setMessageBody:[builder emailMessage]
-                          isHTML:NO];
+                          isHTML:[builder isHTML]];
+    
+    // Adds all of the attachments, if any. 
+    NSArray * attachments = [builder attachments];
+    
+    for (id<RBAttachment> attachment in attachments) {
+        [mailComposer addAttachmentData:[attachment data]
+                               mimeType:[attachment MIMEType]
+                               fileName:[attachment fileName]];
+    }
     
     // Shows the bug report email.
     [[self navController] presentModalViewController:mailComposer animated:YES];

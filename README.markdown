@@ -4,7 +4,7 @@
 `RBBugReporter` is a class to make it easy to receive error reports, notify users of errors, and log errors. `RBBugReporter` also includes support for [Flurry Analytics][1]. 
 
 ##Dependencies
-`RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, and `NSString+RBExtras`. They can be found in my [RBCategories repository][2].
+`RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, `NSString+RBExtras`, and `NSURL+RBExtras`. They can be found in my [RBCategories repository][2].
 
 Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at [Flurry.com][1].
 

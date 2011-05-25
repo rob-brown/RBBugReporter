@@ -1,5 +1,5 @@
 //
-// RBEmailBuilder.h
+// RBStandardAttachment.h
 //
 // Copyright (c) 2011 Robert Brown
 //
@@ -25,43 +25,21 @@
 #import <Foundation/Foundation.h>
 
 
-@protocol RBEmailBuilder <NSObject>
+@interface RBStandardAttachment : NSObject
 
 /**
- * An array of NSStrings which each hold a valid email address.
- *
- * @return The recipients of the email.
+ * The MIME type of the attachment. Optional value.
  */
-- (NSArray *)recipients;
+@property (nonatomic, copy) NSString * fileMIMEType;
 
 /**
- * A string for the email's subject.
+ * Initializes an attachment with just a file path. The MIME type is optional
+ * and may be set after initialization.
  *
- * @return The subject line of the email.
- */
-- (NSString *)subjectLine;
-
-/**
- * A string containing the body text of the email. May be plain text or HTML.
+ * @param path The file path of the attachment.
  *
- * @return The text of the email message.
+ * @return self
  */
-- (NSString *)emailMessage;
-
-/**
- * Indicates if the message is HTML or plain text.
- *
- * @return YES if -emailMessage return HTML or NO if -emailMessage returns plain 
- * text.
- */
-- (BOOL)isHTML;
-
-/**
- * An array of RBAttachments that hold the attachments of the email. If there 
- * are no attachements, then an empty array is returned. Must not return nil.
- *
- * @return The attachments of the email.
- */
-- (NSArray *)attachments;
+- (id) initWithFilePath:(NSString *)path;
 
 @end

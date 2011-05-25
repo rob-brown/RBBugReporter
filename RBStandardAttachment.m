@@ -1,5 +1,5 @@
 //
-// RBEmailBuilder.h
+// RBStandardAttachment.m
 //
 // Copyright (c) 2011 Robert Brown
 //
@@ -22,46 +22,52 @@
 // THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+#import "RBStandardAttachment.h"
+#import "NSURL+RBExtras.h"
 
 
-@protocol RBEmailBuilder <NSObject>
-
-/**
- * An array of NSStrings which each hold a valid email address.
- *
- * @return The recipients of the email.
- */
-- (NSArray *)recipients;
+@interface RBStandardAttachment ()
 
 /**
- * A string for the email's subject.
- *
- * @return The subject line of the email.
+ * A string representing the file path of the attachment.
  */
-- (NSString *)subjectLine;
+@property (nonatomic, copy) NSString * fileName;
 
-/**
- * A string containing the body text of the email. May be plain text or HTML.
- *
- * @return The text of the email message.
- */
-- (NSString *)emailMessage;
+@end
 
-/**
- * Indicates if the message is HTML or plain text.
- *
- * @return YES if -emailMessage return HTML or NO if -emailMessage returns plain 
- * text.
- */
-- (BOOL)isHTML;
 
-/**
- * An array of RBAttachments that hold the attachments of the email. If there 
- * are no attachements, then an empty array is returned. Must not return nil.
- *
- * @return The attachments of the email.
- */
-- (NSArray *)attachments;
+@implementation RBStandardAttachment
+
+@synthesize fileName, fileMIMEType;
+
+- (id) initWithFilePath:(NSString *)path {
+    
+    if ((self = [super init])) {
+        
+        [self setFileName:path];
+    }
+    
+    return self;
+}
+
+- (NSData *)data {
+    
+    return [NSData dataWithContentsOfFile:[self fileName]];
+}
+
+- (NSString *)MIMEType {
+    
+    // If a MIME type isn't specified then it is inferred.
+    if ([self fileMIMEType])
+        return [self fileMIMEType];
+    else
+        return [[NSURL URLWithString:[self fileName]] MIMEType];
+}
+
+- (void)dealloc {
+    [fileName release];
+    [fileMIMEType release];
+    [super dealloc];
+}
 
 @end

@@ -39,4 +39,9 @@
  */
 @property (nonatomic, copy) NSString * subjectLine;
 
+/**
+ * Indicates if the email message body is HTML or plain text.
+ */
+@property (nonatomic, assign, getter=isHTML) BOOL html;
+
 @end
