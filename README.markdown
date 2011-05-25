@@ -9,7 +9,7 @@
 Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at [Flurry.com][1].
 
 ##Generating email reports
-One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][3]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
+One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][3] or [Wikipedia][4]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
 
 ##Receiving email reports
 `RBBugReporter` provides a template email composer. It has two different ways it can be presented. There is a standard alert view that can be presented which asks the user if they want to report a bug. Alternatively, you can present the mail composer directly in response to whatever action you choose. The following gives an example of each. 
@@ -107,3 +107,4 @@ There are several simple methods for Flurry. `RBBugReporter` can log errors, exc
   [1]: http://www.flurry.com/
   [2]: https://github.com/rob-brown/RBCategories
   [3]: http://www.amazon.com/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612/ref=sr_1_1?ie=UTF8&qid=1306283437&sr=8-1
+  [4]: http://en.wikipedia.org/wiki/Builder_pattern
