@@ -1,19 +1,15 @@
 #RBBugReporter
 
 ##Summary
-`RBBugReporter` is a class to make it easy to receive error reports, notify users of errors, and log errors. `RBBugReporter` also includes support for Flurry. 
+`RBBugReporter` is a class to make it easy to receive error reports, notify users of errors, and log errors. `RBBugReporter` also includes support for [Flurry Analytics][1]. 
 
 ##Dependencies
-`RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, and `NSString+RBExtras`. They can be found in my [RBCategories repository][1].
+`RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, and `NSString+RBExtras`. They can be found in my [RBCategories repository][2].
 
-  [1]: https://github.com/rob-brown/RBCategories
-
-Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at Flurry.com
+Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at [Flurry.com][1].
 
 ##Generating email reports
-One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][2]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
-
-  [2]: http://www.amazon.com/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612/ref=sr_1_1?ie=UTF8&qid=1306283437&sr=8-1
+One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][3]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
 
 ##Receiving email reports
 `RBBugReporter` provides a template email composer. It has two different ways it can be presented. There is a standard alert view that can be presented which asks the user if they want to report a bug. Alternatively, you can present the mail composer directly in response to whatever action you choose. The following gives an example of each. 
@@ -28,7 +24,7 @@ RBBugReporter * reporter = [[RBBugReporter alloc] init];
 
 // Presents the email composer directly. This could be in response to the user pressing a bug report button or by some other means.
 RBBugReportEmailBuilder * builder [[RBBugReportEmailBuilder alloc] initWithErrorMessage:@"Testing reporter"];
-RBBugReporter * reporter = [[RBBugReporter alloc] initWithErrorMessage:@"Testing reporter"];
+RBBugReporter * reporter = [[RBBugReporter alloc] init];
 [reporter presentBugReportComposerWithBuilder:builder];
 [builder release];
 [reporter release];
@@ -56,10 +52,10 @@ if (error) {
 ```
 
 ##Flurry
-In addition to standard reporting methods, `RBBugReporter` provides and optional wrapper around Flurry. Flurry reporting can also be disabled when debugging to prevent mixing debugging sessions with regular user sessions.
+In addition to standard reporting methods, `RBBugReporter` provides an optional wrapper around Flurry. Flurry reporting can also be disabled when debugging to prevent mixing debugging sessions with regular user sessions.
 
 ###Including Flurry
-1. Include the Flurry SDK. See Flurry.com for details.
+1. Include the Flurry SDK. See [Flurry.com][1] for details.
 2. In the Xcode build settings, look for "Preprocessor Macros". Define the macro FLURRY for all build configurations.
 3. (Optional) To disable Flurry reports when debugging, define the macro DEBUG for just the debug build configuration.
 
@@ -107,3 +103,7 @@ There are several simple methods for Flurry. `RBBugReporter` can log errors, exc
 >LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 >OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 >THE SOFTWARE.
+
+  [1]: http://www.flurry.com/
+  [2]: https://github.com/rob-brown/RBCategories
+  [3]: http://www.amazon.com/Design-Patterns-Elements-Reusable-Object-Oriented/dp/0201633612/ref=sr_1_1?ie=UTF8&qid=1306283437&sr=8-1
