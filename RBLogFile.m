@@ -58,6 +58,10 @@ const NSInteger RBFileCreationError = 3000;
     if ((self = [super init])) {
         
         [self setFilePath:theFilePath];
+<<<<<<< HEAD
+=======
+        
+>>>>>>> feff551a61a464813f24ac3737dd1642d22afac3
     }
     
     return self;
@@ -114,7 +118,13 @@ const NSInteger RBFileCreationError = 3000;
 }
 
 - (void)dealloc {
+<<<<<<< HEAD
     [filePath release], filePath = nil;
+=======
+    
+    //filePath = nil;
+    [filePath release];
+>>>>>>> feff551a61a464813f24ac3737dd1642d22afac3
     [super dealloc];
 }
 
