@@ -6,6 +6,8 @@
 ##Dependencies
 `RBBugReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, `NSString+RBExtras`, and `NSURL+RBExtras`. They can be found in my [RBCategories repository][2].
 
+`RBBugReporter` also depends on `MessageUI.framework`.
+
 Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at [Flurry.com][1].
 
 ##Generating email reports
