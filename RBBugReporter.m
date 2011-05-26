@@ -157,7 +157,7 @@ static NSString * const kBugReportActionReport = @"Report";
     
 #if defined(FLURRY) && !defined(DEBUG)
     [self sendFlurryReportWithTitle:@"Error"
-                            message:[self stringWithError:error]
+                            message:[NSString stringWithError:error]
                               error:error];
 #endif
 }

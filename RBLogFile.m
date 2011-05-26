@@ -23,13 +23,23 @@
 //
 
 #import "RBLogFile.h"
+#import "NSError+RBExtras.h"
 
 
 @interface RBLogFile ()
 
+/**
+ * A string representing the path to the underlying file.
+ */
 @property (nonatomic, copy) NSString * filePath;
 
+
+- (BOOL)createFile:(NSError **)error;
+
 @end
+
+
+const NSInteger RBFileCreationError = 3000;
 
 
 @implementation RBLogFile
@@ -41,43 +51,64 @@
     if ((self = [super init])) {
         
         [self setFilePath:theFilePath];
-        
-        filePath = [[NSString alloc] initWithString:theFilePath];
-        
     }
     
     return self;
 }
 
-
-
 - (void)write:(NSString *)text {
+    [self write:text error:NULL];
+}
+
+- (void)write:(NSString *)text error:(NSError **)error {
     
-    NSFileManager* fileManager = [NSFileManager defaultManager];
+    NSString * path = [self filePath];
     
-    if ( ![fileManager fileExistsAtPath:filePath] )
-    {
-        if(![fileManager createFileAtPath:filePath contents:nil attributes:nil])
-        {
+    if (![self createFile:error])
+        return;
+    
+    NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:path 
+                                                                 append:YES];
+    
+    NSData * data = [text dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [outFile open];
+    [outFile write:[data bytes] maxLength:[data length]];
+    [outFile close];    
+}
+
+- (BOOL)createFile:(NSError **)error {
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    NSString * path = [self filePath];
+    
+    // Creates the file if it doesn't exists. 
+    if (![fileManager fileExistsAtPath:path]) {
+        
+        if (![fileManager createFileAtPath:path contents:nil attributes:nil]) {
+            
             //  File Creation Failed
-            return;
+            if (error != NULL) {
+                
+                NSDictionary * userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                           NSLocalizedDescriptionKey, @"File could not be created.", 
+                                           nil];
+                
+                *error = [[[NSError alloc] initWithDomain:RBErrorDomain
+                                                     code:RBFileCreationError
+                                                 userInfo:userInfo] autorelease];
+            }
+            
+            return NO;
         }
     }
     
-    NSOutputStream* outFile = [NSOutputStream outputStreamToFileAtPath:filePath append:YES];
-    [outFile open];
-    
-    [outFile write:[[text dataUsingEncoding:NSUTF8StringEncoding] bytes] maxLength:[[text dataUsingEncoding:NSUTF8StringEncoding] length]];
-    
-    [outFile close];
-    
+    return YES;
 }
 
 - (void)dealloc {
-    
     [filePath release];
     [super dealloc];
-    
 }
 
 @end
