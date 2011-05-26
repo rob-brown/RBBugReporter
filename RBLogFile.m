@@ -42,8 +42,6 @@
         
         [self setFilePath:theFilePath];
         
-        filePath = [NSString stringWithString:theFilePath];
-        
     }
     
     return self;
@@ -75,7 +73,7 @@
 
 - (void)dealloc {
     
-    filePath = nil;
+    //filePath = nil;
     [filePath release];
     [super dealloc];
     
