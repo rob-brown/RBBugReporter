@@ -33,7 +33,14 @@
  */
 @property (nonatomic, copy) NSString * filePath;
 
-
+/**
+ * Attempts to create the file if it isn't already. 
+ *
+ * @param error An error is returned by reference to indicate any errors.
+ *
+ * @return YES if the file was created successfully, NO otherwise. If NO is 
+ * returned, then error will contain any error information.
+ */
 - (BOOL)createFile:(NSError **)error;
 
 @end
@@ -107,7 +114,7 @@ const NSInteger RBFileCreationError = 3000;
 }
 
 - (void)dealloc {
-    [filePath release];
+    [filePath release], filePath = nil;
     [super dealloc];
 }
 
