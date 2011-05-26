@@ -42,8 +42,7 @@
         
         [self setFilePath:theFilePath];
         
-        
-        // NOTE: The log file should be lazily created.
+        filePath = [[NSString alloc] initWithString:theFilePath];
         
     }
     
@@ -54,8 +53,31 @@
 
 - (void)write:(NSString *)text {
     
-    // TODO: Write to the file.
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    
+    if ( ![fileManager fileExistsAtPath:filePath] )
+    {
+        if(![fileManager createFileAtPath:filePath contents:nil attributes:nil])
+        {
+            //  File Creation Failed
+            return;
+        }
+    }
+    
+    NSOutputStream* outFile = [NSOutputStream outputStreamToFileAtPath:filePath append:YES];
+    [outFile open];
+    
+    [outFile write:[[text dataUsingEncoding:NSUTF8StringEncoding] bytes] maxLength:[[text dataUsingEncoding:NSUTF8StringEncoding] length]];
+    
+    [outFile close];
+    
 }
 
+- (void)dealloc {
+    
+    [filePath release];
+    [super dealloc];
+    
+}
 
 @end
