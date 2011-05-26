@@ -24,20 +24,8 @@
 
 #import <Foundation/Foundation.h>
 
-extern const NSInteger RBFileCreationError;
 
-
-@interface RBLogFile : NSObject
-
-/**
- * Initializes the log file with the given file path. The log file is lazy 
- * created.
- *
- * @param theFilePath The path to the underlying log file.
- *
- * @return self
- */
-- (id)initWithFilePath:(NSString *)theFilePath;
+@protocol RBLogFile <NSObject>
 
 /**
  * Appends the given text to the underlying log file. Ignores any errors.

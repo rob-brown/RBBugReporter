@@ -23,7 +23,7 @@
 //
 
 #import "RBLogger.h"
-#import "RBLogFile.h"
+#import "RBExtendedLogFile.h"
 #import "NSString+RBExtras.h"
 
 
@@ -31,7 +31,7 @@
 
 @property (nonatomic, assign) dispatch_queue_t loggerQueue;
 
-@property (nonatomic, retain) RBLogFile * currentLogFile;
+@property (nonatomic, retain) RBExtendedLogFile * currentLogFile;
 
 /**
  * Private initializer.
@@ -41,7 +41,6 @@
 - (id) initialize;
 
 @end
-
 
 
 /// The singleton instance.
@@ -64,19 +63,16 @@ static RBLogger * sharedLogger = nil;
 
 - (void)logMessage:(NSString *)msg {
     
-    // ???: Should I use NSOperationQueue instead to get pre-4.0 support?
-    
     // Uses some GCD magic to serialize the requests and to avoid holding up the calling thread.
     dispatch_async([self loggerQueue], ^{
         
-        
-        // TODO: Write to the file. 
-        
+        // Writes to the log file.
+        [[self currentLogFile] write:msg];
     });
 }
 
 
-- (RBLogFile *)logFileForDate:(NSDate *)date {
+- (RBExtendedLogFile *)logFileForDate:(NSDate *)date {
     
     // Try to find the log file for a given date. If exists, then return it.
     
@@ -85,13 +81,15 @@ static RBLogger * sharedLogger = nil;
 }
 
 
-- (RBLogFile *)currentLogFile {
+- (RBExtendedLogFile *)currentLogFile {
     
     // If no log file, create one.
     
     
     // If log file is out of date, release it and create a new one.
     
+    
+    // NOTE: Use the factory to create log files.
     
     return nil;
 }

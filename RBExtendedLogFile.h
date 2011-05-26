@@ -1,5 +1,5 @@
 //
-// RBLogger.h
+// RBExtendedLogFile.h
 //
 // Copyright (c) 2011 Robert Brown
 //
@@ -24,21 +24,46 @@
 
 #import <Foundation/Foundation.h>
 
-#import "RBLogFile.h"
+extern const NSInteger RBFileCreationError;
 
-@interface RBLogger : NSObject
-
-- (void)logError:(NSError *)error;
-
-- (void)logException:(NSException *)exeption;
 
 /**
- * Writes the given message to the log file.
+ * A log file that uses a format similar to the extended log file format. 
  */
-- (void)logMessage:(NSString *)msg;
+@interface RBExtendedLogFile : NSObject
 
-- (id<RBLogFile>)logFileForDate:(NSDate *)date;
+/**
+ * Initializes the log file with the given file path. The log file is lazy 
+ * created.
+ *
+ * @param theFilePath The path to the underlying log file.
+ *
+ * @return self
+ */
+- (id)initWithFilePath:(NSString *)theFilePath;
 
-+ (RBLogger *) sharedLogger;
+/**
+ * Appends the given text to the underlying log file. Ignores any errors.
+ *
+ * @param text The text to append to the log file.
+ *
+ * @return YES if no errors occurred, NO otherwise.
+ */
+- (BOOL)write:(NSString *)text;
+
+/**
+ * Appends the given text to the underlying log file. 
+ *
+ * @param text The text to append to the log file.
+ * @param error An error is returned by reference if the text can't be written.
+ *
+ * @return YES if no errors occurred, NO otherwise.
+ */
+- (BOOL)write:(NSString *)text error:(NSError **)error;
+
+/**
+ * Returns the number of times the log file has been written to.
+ */
+- (NSInteger)writeCount;
 
 @end

@@ -1,5 +1,5 @@
 //
-// RBLogFile.m
+// RBExtendedLogFile.m
 //
 // Copyright (c) 2011 Robert Brown
 //
@@ -22,16 +22,21 @@
 // THE SOFTWARE.
 //
 
-#import "RBLogFile.h"
+#import "RBExtendedLogFile.h"
 #import "NSError+RBExtras.h"
 
 
-@interface RBLogFile ()
+@interface RBExtendedLogFile ()
 
 /**
  * A string representing the path to the underlying file.
  */
 @property (nonatomic, copy) NSString * filePath;
+
+/**
+ * The number of times the log file has been written to.
+ */
+@property (nonatomic, assign) NSInteger writeCount;
 
 /**
  * Attempts to create the file if it isn't already. 
@@ -43,15 +48,25 @@
  */
 - (BOOL)createFile:(NSError **)error;
 
+/**
+ * Writes the header data if it hasn't already.
+ */
+- (void)writeHeaderData;
+
+/**
+ * Increments the write count be one.
+ */
+- (void)incrementWriteCount;
+
 @end
 
 
 const NSInteger RBFileCreationError = 3000;
 
 
-@implementation RBLogFile
+@implementation RBExtendedLogFile
 
-@synthesize filePath;
+@synthesize filePath, writeCount;
 
 - (id)initWithFilePath:(NSString *)theFilePath {
     
@@ -63,25 +78,37 @@ const NSInteger RBFileCreationError = 3000;
     return self;
 }
 
-- (void)write:(NSString *)text {
-    [self write:text error:NULL];
+- (BOOL)write:(NSString *)text {
+    return [self write:text error:NULL];
 }
 
-- (void)write:(NSString *)text error:(NSError **)error {
+- (BOOL)write:(NSString *)text error:(NSError **)error {
     
-    NSString * path = [self filePath];
-    
+    // Creates the file, if necessary.
     if (![self createFile:error])
-        return;
+        return NO;
     
-    NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:path 
+    // Writes the header data, if necessary.
+    [self writeHeaderData];
+    
+    // Formats the log message.
+    NSString * now = [NSDateFormatter localizedStringFromDate:[NSDate date]
+                                                    dateStyle:NSDateFormatterNoStyle
+                                                    timeStyle:NSDateFormatterShortStyle];
+    NSString * logMsg = [NSString stringWithFormat:@"[%@] [%@]", now, text];
+    
+    // Writes the formatted log message to the file.
+    NSData * logData = [logMsg dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:[self filePath] 
                                                                  append:YES];
-    
-    NSData * data = [text dataUsingEncoding:NSUTF8StringEncoding];
-    
     [outFile open];
-    [outFile write:[data bytes] maxLength:[data length]];
-    [outFile close];    
+    [outFile write:[logData bytes] maxLength:[logData length]];
+    [outFile close];
+    
+    [self incrementWriteCount];
+    
+    return YES;
 }
 
 - (BOOL)createFile:(NSError **)error {
@@ -112,6 +139,43 @@ const NSInteger RBFileCreationError = 3000;
     
     return YES;
 }
+
+- (void)writeHeaderData {
+    
+    // If the log file hasn't been written to, then some header info is written.
+    if ([self writeCount] == 0) {
+        
+        // Uses a format similar to the extended log file format.
+        NSString * versionStr = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+        NSString * dateStr = [NSDateFormatter localizedStringFromDate:[NSDate date]
+                                                            dateStyle:NSDateFormatterMediumStyle
+                                                            timeStyle:NSDateFormatterNoStyle];
+        NSString * fieldStr = @"time message";
+        
+        NSString * headerStr = [NSString stringWithFormat:
+                                @"#Version: %@\n#Date: %@\n#Fields: %@\n", 
+                                versionStr, 
+                                dateStr, 
+                                fieldStr];
+        NSData * headerData = [headerStr dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:[self filePath] 
+                                                                     append:YES];
+        [outFile open];
+        [outFile write:[headerData bytes] maxLength:[headerData length]];
+        [outFile close];
+        
+        [self incrementWriteCount];
+    }
+}
+
+- (void)incrementWriteCount {
+    
+    [self setWriteCount:[self writeCount] + 1];
+}
+
+
+#pragma mark - Memory Management
 
 - (void)dealloc {
     [filePath release], filePath = nil;
