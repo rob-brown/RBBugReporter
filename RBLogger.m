@@ -71,7 +71,6 @@ static RBLogger * sharedLogger = nil;
     });
 }
 
-
 - (RBExtendedLogFile *)logFileForDate:(NSDate *)date {
     
     // Try to find the log file for a given date. If exists, then return it.
@@ -79,7 +78,6 @@ static RBLogger * sharedLogger = nil;
     
     return nil;
 }
-
 
 - (RBExtendedLogFile *)currentLogFile {
     

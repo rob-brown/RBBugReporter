@@ -34,6 +34,10 @@
 
 /**
  * Writes the given message to the log file.
+ *
+ * @param msg The unformatted message to write to the log file.
+ *
+ * @todo Change this later to use NSOperationQueue instead of GCD.
  */
 - (void)logMessage:(NSString *)msg;
 
