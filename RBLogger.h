@@ -71,6 +71,16 @@
 - (id<RBLogFile>)currentLogFile;
 
 /**
+ * Deletes any log files older than the given limit in days. For example, if a
+ * limit of 7 days is passed in, then all log files 8 days or older are deleted.
+ * Log files may be automatically purged by setting the class constant 
+ * 'kAutoPurgeLogFiles' to YES. Otherwise, this will need to be called manually.
+ * 
+ * @param dayAgeLimit The max number of days of logs to keep. 
+ */
++ (void)purgeOldLogFiles:(NSUInteger)dayAgeLimit;
+
+/**
  * Returns the singleton instance.
  *
  * @return The singleton instance.

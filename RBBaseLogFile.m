@@ -32,11 +32,11 @@
     return self;
 }
 
-- (void)write:(NSString *)text {
-    [self write:text error:NULL];
+- (BOOL)write:(NSString *)text {
+    return [self write:text error:NULL];
 }
 
-- (void)write:(NSString *)text error:(NSError **)error {
+- (BOOL)write:(NSString *)text error:(NSError **)error {
     
     NSData * data = [text dataUsingEncoding:NSUTF8StringEncoding];
     NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:[self filePath] 
@@ -44,6 +44,8 @@
     [outFile open];
     [outFile write:[data bytes] maxLength:[data length]];
     [outFile close];
+    
+    return YES;
 }
 
 - (BOOL)underlyingFileExists {

@@ -1,7 +1,7 @@
 #RBReporter
 
 ##Summary
-`RBReporter` is a class to make it easy to receive error reports, notify users of errors, and log errors. `RBReporter` also includes support for [Flurry Analytics][1]. `RBReporter` is a facade to all the other classes. This means you only need to interact with `RBReporter`. However, you can still use the underlying classes if necessary. 
+`RBReporter` is a facade to make it easy to receive error reports, notify users of errors, and log errors. `RBReporter` also includes support for [Flurry Analytics][1]. You only need to interact with `RBReporter`; however, you can still use the underlying classes if necessary. 
 
 ##Dependencies
 `RBReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, `NSString+RBExtras`, and `NSURL+RBExtras`. They can be found in my [RBCategories repository][2].
@@ -10,10 +10,14 @@
 
 Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at [Flurry.com][1].
 
-##Generating email reports
+`RBReporter` is written for iOS 4.0+ support. It can probably be modified for 3.0+ support by switching GCD with NSOperationQueue. `RBReporter` has not been written to work with the Mac platform. It would be nice if `RBReporter` is modified to be independent of iOS so it could be used in Mac software. 
+
+##Email
+
+###Generating email reports
 One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][3] or [Wikipedia][4]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
 
-##Receiving email reports
+###Receiving email reports
 `RBReporter` provides a template email composer. It has two different ways it can be presented. There is a standard alert view that can be presented which asks the user if they want to report a bug. Alternatively, you can present the mail composer directly in response to whatever action you choose. The following gives an example of each. 
 
 ```objective-c
@@ -33,15 +37,17 @@ RBReporter * reporter = [[RBReporter alloc] init];
 ```
 
 ##User notifications
-`RBReporter` includes a method for presenting simple messages to users. These messages are intended to present information or notify of errors where no immediate action is required. The following is an example:
+`RBReporter` includes a convenience method for presenting simple messages to users. These messages are intended to present information or notify of errors where no immediate action is required. The following is an example:
 
 ```objective-c
 [RBReporter presentAlertWithTitle:@"Testing" 
-                             message:@"Testing simple message presentation."];
+                          message:@"Testing simple message presentation."];
 ```
 
-##Logging errors
-Logging errors are made very easy. Just pass the error to RBReporter.
+##Data Logging
+
+###Logging errors
+Logging errors are made very easy. Just pass the error to `RBReporter`. Exceptions can be handled similarly.
 
 ```objective-c
 NSError * error = nil;
@@ -53,13 +59,13 @@ if (error) {
 }
 ```
 
-##RBLogger
+###RBLogger
 There is a logger underneath `RBReporter`. `RBReporter` provides a facade to the logger; however, if you need to directly access the logger, you may. The logger is also designed to create a new log file every day. This keeps log files smaller and makes it easy to clean up old log files. 
 
-##RBLogFile
-`RBLogFile` provides an interface for the log files `RBLogger` uses. These files can direct their output to a file on the local file system or on a remote server. This also makes the format of the log file independent of the logger. 
+###RBLogFile
+`RBLogFile` provides an interface for the log files `RBLogger` uses. These files can direct their output to a file on the local file system or on a remote server. This also makes the format of the log file independent of the logger. `RBExtendedLogFile` is included for use as is or as a template for other log files. It uses a modification of the extended log file format. `RBBaseLogFile` provides a simple implementation and may be subclassed to define custom behavior.
 
-##RBLogFileFactory
+###RBLogFileFactory
 `RBLogger` is intended to only use one type of log file. `RBLogFileFactory` is responsible for creating log files so  `RBLogger` is doesn't need to know anything about your own implementations of `RBLogFile`. By changing `newLogFileWithPath:` you can change the file format of your log files.
 
 ##Flurry
@@ -79,13 +85,13 @@ There are several simple methods for Flurry. `RBReporter` can log errors, except
 
 // Customized error reporting.
 [RBReporter sendFlurryReportWithTitle:@"Error"
-                                 message:@"An error occurred"
-                                   error:error];
+                              message:@"An error occurred"
+                                error:error];
 
 // Customized exception reporting.
 [RBReporter sendFlurryReportWithTitle:@"Error"
-                                 message:@"An error occurred"
-                               exception:exception];
+                              message:@"An error occurred"
+                            exception:exception];
 
 // Simple event logging.
 [RBReporter logFlurryEvent:anEventName];

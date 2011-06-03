@@ -34,33 +34,4 @@ extern const NSInteger RBFileCreationError;
  */
 @interface RBExtendedLogFile : RBBaseLogFile
 
-/**
- * Initializes the log file with the given file path. The log file is lazy 
- * created.
- *
- * @param theFilePath The path to the underlying log file.
- *
- * @return self
- */
-- (id)initWithFilePath:(NSString *)theFilePath;
-
-/**
- * Appends the given text to the underlying log file. Ignores any errors.
- *
- * @param text The text to append to the log file.
- *
- * @return YES if no errors occurred, NO otherwise.
- */
-- (BOOL)write:(NSString *)text;
-
-/**
- * Appends the given text to the underlying log file. 
- *
- * @param text The text to append to the log file.
- * @param error An error is returned by reference if the text can't be written.
- *
- * @return YES if no errors occurred, NO otherwise.
- */
-- (BOOL)write:(NSString *)text error:(NSError **)error;
-
 @end

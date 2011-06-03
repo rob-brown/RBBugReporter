@@ -37,8 +37,10 @@
  * be directly written to.
  *
  * @param text The text to append to the log file.
+ *
+ * @return YES if the write was successful, NO otherwise.
  */
-- (void)write:(NSString *)text;
+- (BOOL)write:(NSString *)text;
 
 /**
  * Appends the given text to the underlying log file. This should not be called 
@@ -47,8 +49,10 @@
  *
  * @param text The text to append to the log file.
  * @param error An error is returned by reference if the text can't be written.
+ *
+ * @return YES if the write was successful, NO otherwise.
  */
-- (void)write:(NSString *)text error:(NSError **)error;
+- (BOOL)write:(NSString *)text error:(NSError **)error;
 
 /**
  * Returns whether or not an actual file exists underneath. 

@@ -60,10 +60,6 @@ const NSInteger RBFileCreationError = 3000;
     return self;
 }
 
-- (BOOL)write:(NSString *)text {
-    return [self write:text error:NULL];
-}
-
 - (BOOL)write:(NSString *)text error:(NSError **)error {
     
     // Creates the file, if necessary.

@@ -26,6 +26,18 @@
 #import "NSString+RBExtras.h"
 #import "RBLogFileFactory.h"
 
+/**
+ * The standard max age limit, in days, that log files should be kept around.
+ */
+static const NSUInteger kDefaultLogFileAgeLimit = 7;
+
+/** 
+ * Whether or not the logger should purge old log files when the logger is 
+ * started. Log files are deemed old when their age in days is greater than 
+ * kDefaultLogFileAgeLimit.
+ */
+static const BOOL kAutoPurgeLogFiles = NO;
+
 
 @interface RBLogger ()
 
@@ -98,6 +110,11 @@ static RBLogger * sharedLogger = nil;
     return [NSString pathWithComponentsRelativeToDocumentsDirectory:relativeComps];
 }
 
++ (void)purgeOldLogFiles:(NSUInteger)dayAgeLimit {
+    
+    // TODO: Implement this.
+}
+
 
 #pragma mark - Singleton methods
 
@@ -117,6 +134,13 @@ static RBLogger * sharedLogger = nil;
     
     if ((self = [super init])) {
         [self setLoggerQueue:dispatch_queue_create("com.robertbrown.RBLoggerQueue", NULL)];
+        
+        // Auto-purges old log files if activated.
+        if (kAutoPurgeLogFiles) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [[self class] purgeOldLogFiles:kDefaultLogFileAgeLimit];
+            });
+        }
     }
     
     return self;
