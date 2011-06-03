@@ -4,7 +4,7 @@
 `RBReporter` is a facade to make it easy to receive error reports, notify users of errors, and log errors. `RBReporter` also includes support for [Flurry Analytics][1]. You only need to interact with `RBReporter`; however, you can still use the underlying classes if necessary. 
 
 ##Dependencies
-`RBReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, `NSString+RBExtras`, and `NSURL+RBExtras`. They can be found in my [RBCategories repository][2].
+`RBReporter` relies on some of my categories. Be sure to also include my `UIWindow+RBExtras`, `UIViewController+RBExtras`, `NSString+RBExtras`, `NSURL+RBExtras`, and `NSDate+RBExtras`. They can be found in my [RBCategories repository][2].
 
 `RBReporter` also depends on `MessageUI.framework`.
 
@@ -60,7 +60,7 @@ if (error) {
 ```
 
 ###RBLogger
-There is a logger underneath `RBReporter`. `RBReporter` provides a facade to the logger; however, if you need to directly access the logger, you may. The logger is also designed to create a new log file every day. This keeps log files smaller and makes it easy to clean up old log files. 
+There is a logger underneath `RBReporter`. `RBReporter` provides a facade to the logger; however, if you need to directly access the logger, you may. The logger is also designed to create a new log file every day. This keeps log files smaller and makes it easy to clean up old log files. Furthermore, the logger is also designed to automatically purge old files if desired. Simply set `kAutoPurgeLogFiles` in RBLogger to YES and `kDefaultLogFileAgeLimit` to the number of days of log files to keep.
 
 ###RBLogFile
 `RBLogFile` provides an interface for the log files `RBLogger` uses. These files can direct their output to a file on the local file system or on a remote server. This also makes the format of the log file independent of the logger. `RBExtendedLogFile` is included for use as is or as a template for other log files. It uses a modification of the extended log file format. `RBBaseLogFile` provides a simple implementation and may be subclassed to define custom behavior.

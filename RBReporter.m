@@ -205,8 +205,7 @@ static NSString * const kReportActionReport = @"Report";
 }
 
 
-#pragma mark -
-#pragma mark MFMailComposeViewControllerDelegate methods
+#pragma mark - MFMailComposeViewControllerDelegate methods
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
 	

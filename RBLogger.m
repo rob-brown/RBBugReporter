@@ -24,19 +24,36 @@
 
 #import "RBLogger.h"
 #import "NSString+RBExtras.h"
+#import "NSDate+RBExtras.h"
 #import "RBLogFileFactory.h"
+#import "RBReporter.h"
 
 /**
  * The standard max age limit, in days, that log files should be kept around.
  */
-static const NSUInteger kDefaultLogFileAgeLimit = 7;
+static const NSUInteger kDefaultLogFileAgeLimit = 30;
 
 /** 
  * Whether or not the logger should purge old log files when the logger is 
  * started. Log files are deemed old when their age in days is greater than 
  * kDefaultLogFileAgeLimit.
  */
-static const BOOL kAutoPurgeLogFiles = NO;
+static const BOOL kAutoPurgeLogFiles = YES;
+
+/**
+ * The template to use for naming log files.
+ */
+static NSString * const kLogFileDateTemplate = @"yyyy-MM-dd";
+
+/**
+ * The extension to use for log files.
+ */
+static NSString * const kLogFileExtension = @"log";
+
+/**
+ * The name of the directory for the log files.
+ */
+static NSString * const kLogFileDirectoryName = @"LogFiles";
 
 
 @interface RBLogger ()
@@ -51,7 +68,19 @@ static const BOOL kAutoPurgeLogFiles = NO;
  */
 - (id) initialize;
 
+/**
+ * Returns the path of the log file for the given date.
+ *
+ * @return The path of the log file for the given date.
+ */
 + (NSString *)logFilePathForDate:(NSDate *)date;
+
+/**
+ * Returns the path to the log file directory.
+ *
+ * @return The path to the log file directory.
+ */
++ (NSString *)logFileDirectory;
 
 @end
 
@@ -97,22 +126,66 @@ static RBLogger * sharedLogger = nil;
 + (NSString *)logFilePathForDate:(NSDate *)date {
     
     // Generates the file name.
-    NSString * dateTemplate = @"yyyy-MM-dd";
 	NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
-	[formatter setDateFormat:dateTemplate];
+	[formatter setDateFormat:kLogFileDateTemplate];
     NSString * formattedDate = [formatter stringFromDate:date];
     [formatter release];
-    NSString * fileName = [NSString stringWithFormat:@"LogFile%@.log", formattedDate];
+    NSString * fileName = [NSString stringWithFormat:@"LogFile%@.%@", formattedDate, kLogFileExtension];
     
-    // Generates an array of relative components.
-    NSArray * relativeComps = [NSArray arrayWithObjects:@"LogFiles", fileName, nil];
+    // Generates an array of path components.
+    NSArray * pathComps = [NSArray arrayWithObjects:[self logFileDirectory], fileName, nil];
+    
+    return [NSString pathWithComponents:pathComps];
+}
+
++ (NSString *)logFileDirectory {
+    
+    NSArray * relativeComps = [NSArray arrayWithObject:kLogFileDirectoryName];
     
     return [NSString pathWithComponentsRelativeToDocumentsDirectory:relativeComps];
 }
 
 + (void)purgeOldLogFiles:(NSUInteger)dayAgeLimit {
     
-    // TODO: Implement this.
+    // Gets the log file directory.
+    NSString * logDir = [self logFileDirectory];
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    
+    // Gets all the files in the directory.
+    NSError * error = nil;
+    NSArray * files = [fileManager contentsOfDirectoryAtPath:logDir error:&error];
+    
+    if (error) {
+        [RBReporter logError:error];
+        return;
+    }
+    
+    // Iterates through all of the files and deletes any that are too old.
+    for (NSString * file in files) {
+        
+        NSDictionary * attributes = [fileManager attributesOfItemAtPath:file error:&error];
+        
+        if (error) {
+            [RBReporter logError:error];
+            error = nil;
+            continue;
+        }
+        
+        NSDate * creationDate = [attributes valueForKey:NSFileCreationDate];
+        
+        // If the log file is too old, then it is deleted.
+        if ([creationDate timeIntervalSinceDate:[NSDate date]] > dayAgeLimit * ONE_DAY && 
+            [[file pathExtension] isEqualToString:kLogFileExtension]) {
+            
+            [fileManager removeItemAtPath:file error:&error];
+            
+            if (error) {
+                [RBReporter logError:error];
+                error = nil;
+                continue;
+            }
+        }
+    }
 }
 
 
