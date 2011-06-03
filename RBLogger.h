@@ -28,9 +28,21 @@
 
 @interface RBLogger : NSObject
 
+/**
+ * Logs an error. Simply calls logMessage: with a string generated from the 
+ * error.
+ *
+ * @param error The error to log.
+ */
 - (void)logError:(NSError *)error;
 
-- (void)logException:(NSException *)exeption;
+/**
+ * Logs an exception. Simply calls logMessage: with a string generated from the 
+ * exception.
+ *
+ * @param exception The exception to log.
+ */
+- (void)logException:(NSException *)exception;
 
 /**
  * Writes the given message to the log file.
@@ -41,8 +53,28 @@
  */
 - (void)logMessage:(NSString *)msg;
 
-- (id<RBLogFile>)logFileForDate:(NSDate *)date;
+/**
+ * Returns the log file for the given date. There may or may not be an actual 
+ * file underneath the RBLogFile.
+ *
+ * @param date The date of the log file.
+ *
+ * @return The log file for the given date.
+ */
++ (id<RBLogFile>)logFileForDate:(NSDate *)date;
 
+/** 
+ * Returns the log file that the logger is currently using.
+ *
+ * @return The log file that the logger is currently using.
+ */
+- (id<RBLogFile>)currentLogFile;
+
+/**
+ * Returns the singleton instance.
+ *
+ * @return The singleton instance.
+ */
 + (RBLogger *) sharedLogger;
 
 @end

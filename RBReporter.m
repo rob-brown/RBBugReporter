@@ -1,5 +1,5 @@
 //
-// RBBugReporter.m
+// RBReporter.m
 //
 // Copyright (c) 2011 Robert Brown
 //
@@ -22,7 +22,8 @@
 // THE SOFTWARE.
 //
 
-#import "RBBugReporter.h"
+#import "RBReporter.h"
+#import "RBLogger.h"
 #import "RBAttachment.h"
 #import "UIWindow+RBExtras.h"
 #import "NSString+RBExtras.h"
@@ -31,15 +32,15 @@
 #import "FlurryAPI.h"
 #endif
 
-static NSString * const kBugReportActionCancel = @"Cancel";
-static NSString * const kBugReportActionReport = @"Report";
+static NSString * const kReportActionCancel = @"Cancel";
+static NSString * const kReportActionReport = @"Report";
 
 // ???: Should I set the UINavigationControllerDelegate so I can watch the view controller pops?
 // This could prevent memory leaks when the mail composser is force popped externally.
 // I should also keep the previous delegate around, if any, so that it can still receive messages.
 
 
-@implementation RBBugReporter
+@implementation RBReporter
 
 @synthesize alertMsg, navController, emailBuilder;
 
@@ -73,8 +74,8 @@ static NSString * const kBugReportActionReport = @"Report";
     UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"Report Bug" 
                                                          message:[self alertMsg]
                                                         delegate:self 
-                                               cancelButtonTitle:kBugReportActionCancel 
-                                               otherButtonTitles:kBugReportActionReport, nil];
+                                               cancelButtonTitle:kReportActionCancel 
+                                               otherButtonTitles:kReportActionReport, nil];
     [alertView setDelegate:self];
     [alertView show];
     [alertView release];
@@ -127,9 +128,25 @@ static NSString * const kBugReportActionReport = @"Report";
 	[alert release];
 }
 
-+ (void) logError:(NSError *)error {
+
+#pragma mark - Logging methods
+
++ (void)logError:(NSError *)error {
 	
     NSLog(@"%@", [NSString stringWithError:error]);
+    [[RBLogger sharedLogger] logError:error];
+}
+
++ (void)logException:(NSException *)exception {
+    
+    NSLog(@"%@", [NSString stringWithException:exception]);
+    [[RBLogger sharedLogger] logException:exception];
+}
+
++ (void)logMessage:(NSString *)msg {
+
+    NSLog(@"%@", msg);
+    [[RBLogger sharedLogger] logMessage:msg];
 }
 
 
@@ -176,10 +193,10 @@ static NSString * const kBugReportActionReport = @"Report";
     
     NSString * buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
     
-    if ([buttonTitle isEqualToString:kBugReportActionCancel]) {
+    if ([buttonTitle isEqualToString:kReportActionCancel]) {
         // Do Nothing.
     }
-    else if ([buttonTitle isEqualToString:kBugReportActionReport]) {
+    else if ([buttonTitle isEqualToString:kReportActionReport]) {
         [self presentBugReportComposerWithBuilder:[self emailBuilder]];
     }
     

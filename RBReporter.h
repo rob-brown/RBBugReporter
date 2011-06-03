@@ -1,5 +1,5 @@
 //
-// RBBugReporter.h
+// RBReporter.h
 //
 // Copyright (c) 2011 Robert Brown
 //
@@ -28,11 +28,11 @@
 #import "RBEmailBuilder.h"
 
 /**
- * A class for generating bug reports, logging errors, etc. Includes support for 
+ * A class for generating reports, logging errors, etc. Includes support for 
  * Flurry. The bug reporter comes with many defaults which can be overriden as
  * necessary through various accessor methods.
  */
-@interface RBBugReporter : NSObject <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
+@interface RBReporter : NSObject <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
 
 /**
  * The message body of the alert view presented when calling presentBugAlert.
@@ -84,7 +84,21 @@
  *
  * @param error The error to log.
  */
-+ (void) logError:(NSError *)error;
++ (void)logError:(NSError *)error;
+
+/**
+ * Convenient exception logger given an NSException.
+ *
+ * @param exception The exception to log.
+ */
++ (void)logException:(NSException *)exception;
+
+/**
+ * Convenient message logger.
+ *
+ * @param msg The message to log.
+ */
++ (void)logMessage:(NSString *)msg;
 
 // -----------------------------------------------------------------------------
 // Flurry Methods

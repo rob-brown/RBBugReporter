@@ -24,22 +24,37 @@
 
 #import <Foundation/Foundation.h>
 
-
+/**
+ * Protocol for log files. These log file objects are wrappers around files on 
+ * the local system or a server.
+ */
 @protocol RBLogFile <NSObject>
 
 /**
- * Appends the given text to the underlying log file. Ignores any errors.
+ * Appends the given text to the underlying log file. Ignores any errors. This 
+ * should not be called directly. Use RBLogger so that all writes are 
+ * synchronized and thread safe. Furthermore, the underlying file should never
+ * be directly written to.
  *
  * @param text The text to append to the log file.
  */
 - (void)write:(NSString *)text;
 
 /**
- * Appends the given text to the underlying log file. 
+ * Appends the given text to the underlying log file. This should not be called 
+ * directly. Use RBLogger so that all writes are synchronized and thread safe.
+ * Furthermore, the underlying file should never be directly written to.
  *
  * @param text The text to append to the log file.
  * @param error An error is returned by reference if the text can't be written.
  */
 - (void)write:(NSString *)text error:(NSError **)error;
+
+/**
+ * Returns whether or not an actual file exists underneath. 
+ *
+ * @return YES if a file exists, NO otherwise.
+ */
+- (BOOL)underlyingFileExists;
 
 @end

@@ -41,12 +41,15 @@ static RBLogFileFactory * sharedFactory = nil;
 
 + (RBLogFileFactory *)sharedFactory {
     
-    if (!sharedFactory) {
-        
-        sharedFactory = [[super allocWithZone:nil] init];
-    }
+    @synchronized(self) {
     
-    return sharedFactory;
+        if (!sharedFactory) {
+            
+            sharedFactory = [[super allocWithZone:nil] init];
+        }
+        
+        return sharedFactory;
+    }
 }
 
 + (id) allocWithZone:(NSZone *)zone {

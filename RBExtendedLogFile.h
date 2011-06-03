@@ -24,13 +24,15 @@
 
 #import <Foundation/Foundation.h>
 
+#import "RBBaseLogFile.h"
+
 extern const NSInteger RBFileCreationError;
 
 
 /**
  * A log file that uses a format similar to the extended log file format. 
  */
-@interface RBExtendedLogFile : NSObject
+@interface RBExtendedLogFile : RBBaseLogFile
 
 /**
  * Initializes the log file with the given file path. The log file is lazy 
@@ -60,10 +62,5 @@ extern const NSInteger RBFileCreationError;
  * @return YES if no errors occurred, NO otherwise.
  */
 - (BOOL)write:(NSString *)text error:(NSError **)error;
-
-/**
- * Returns the number of times the log file has been written to.
- */
-- (NSInteger)writeCount;
 
 @end

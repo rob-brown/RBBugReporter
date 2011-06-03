@@ -23,15 +23,14 @@
 //
 
 #import "RBLogger.h"
-#import "RBExtendedLogFile.h"
 #import "NSString+RBExtras.h"
+#import "RBLogFileFactory.h"
 
 
 @interface RBLogger ()
 
+/// A dispatch queue used for serializing log messages. 
 @property (nonatomic, assign) dispatch_queue_t loggerQueue;
-
-@property (nonatomic, retain) RBExtendedLogFile * currentLogFile;
 
 /**
  * Private initializer.
@@ -39,6 +38,8 @@
  * @return self;
  */
 - (id) initialize;
+
++ (NSString *)logFilePathForDate:(NSDate *)date;
 
 @end
 
@@ -48,17 +49,14 @@ static RBLogger * sharedLogger = nil;
 
 @implementation RBLogger
 
-@synthesize loggerQueue, currentLogFile;
+@synthesize loggerQueue;
 
 - (void)logError:(NSError *)error {
-    
     [self logMessage:[NSString stringWithError:error]];
 }
 
-- (void)logException:(NSException *)exeption {
-    
-    // TODO: Create exception string and pass to -logMessage:.
-    
+- (void)logException:(NSException *)exception {
+    [self logMessage:[NSString stringWithException:exception]];
 }
 
 - (void)logMessage:(NSString *)msg {
@@ -71,25 +69,33 @@ static RBLogger * sharedLogger = nil;
     });
 }
 
-- (RBExtendedLogFile *)logFileForDate:(NSDate *)date {
++ (id<RBLogFile>)logFileForDate:(NSDate *)date {
     
-    // Try to find the log file for a given date. If exists, then return it.
+    // Gets the file path with the given date.
+    NSString * filePath = [[self class] logFilePathForDate:date];
     
-    
-    return nil;
+    return [[[RBLogFileFactory sharedFactory] newLogFileWithPath:filePath] autorelease];
 }
 
-- (RBExtendedLogFile *)currentLogFile {
+- (id<RBLogFile>)currentLogFile {
     
-    // If no log file, create one.
+    return [[self class] logFileForDate:[NSDate date]];
+}
+
++ (NSString *)logFilePathForDate:(NSDate *)date {
     
+    // Generates the file name.
+    NSString * dateTemplate = @"yyyy-MM-dd";
+	NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
+	[formatter setDateFormat:dateTemplate];
+    NSString * formattedDate = [formatter stringFromDate:date];
+    [formatter release];
+    NSString * fileName = [NSString stringWithFormat:@"LogFile%@.log", formattedDate];
     
-    // If log file is out of date, release it and create a new one.
+    // Generates an array of relative components.
+    NSArray * relativeComps = [NSArray arrayWithObjects:@"LogFiles", fileName, nil];
     
-    
-    // NOTE: Use the factory to create log files.
-    
-    return nil;
+    return [NSString pathWithComponentsRelativeToDocumentsDirectory:relativeComps];
 }
 
 
@@ -97,9 +103,11 @@ static RBLogger * sharedLogger = nil;
 
 + (RBLogger *) sharedLogger {
     
-    if (!sharedLogger) {
-        
-        sharedLogger = [[super allocWithZone:nil] initialize];
+    @synchronized(self) {
+    
+        if (!sharedLogger) {
+            sharedLogger = [[super allocWithZone:nil] initialize];
+        }
     }
     
     return sharedLogger;
@@ -108,7 +116,6 @@ static RBLogger * sharedLogger = nil;
 - (id) initialize {
     
     if ((self = [super init])) {
-        
         [self setLoggerQueue:dispatch_queue_create("com.robertbrown.RBLoggerQueue", NULL)];
     }
     

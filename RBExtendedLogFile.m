@@ -29,16 +29,6 @@
 @interface RBExtendedLogFile ()
 
 /**
- * A string representing the path to the underlying file.
- */
-@property (nonatomic, copy) NSString * filePath;
-
-/**
- * The number of times the log file has been written to.
- */
-@property (nonatomic, assign) NSInteger writeCount;
-
-/**
  * Attempts to create the file if it isn't already. 
  *
  * @param error An error is returned by reference to indicate any errors.
@@ -53,11 +43,6 @@
  */
 - (void)writeHeaderData;
 
-/**
- * Increments the write count be one.
- */
-- (void)incrementWriteCount;
-
 @end
 
 
@@ -66,13 +51,10 @@ const NSInteger RBFileCreationError = 3000;
 
 @implementation RBExtendedLogFile
 
-@synthesize filePath, writeCount;
-
 - (id)initWithFilePath:(NSString *)theFilePath {
     
-    if ((self = [super init])) {
+    if ((self = [super initWithFilePath:theFilePath])) {
         
-        [self setFilePath:theFilePath];
     }
     
     return self;
@@ -88,9 +70,6 @@ const NSInteger RBFileCreationError = 3000;
     if (![self createFile:error])
         return NO;
     
-    // Writes the header data, if necessary.
-    [self writeHeaderData];
-    
     // Formats the log message.
     NSString * now = [NSDateFormatter localizedStringFromDate:[NSDate date]
                                                     dateStyle:NSDateFormatterNoStyle
@@ -105,8 +84,6 @@ const NSInteger RBFileCreationError = 3000;
     [outFile open];
     [outFile write:[logData bytes] maxLength:[logData length]];
     [outFile close];
-    
-    [self incrementWriteCount];
     
     return YES;
 }
@@ -125,15 +102,17 @@ const NSInteger RBFileCreationError = 3000;
             if (error != NULL) {
                 
                 NSDictionary * userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                           NSLocalizedDescriptionKey, @"File could not be created.", 
+                                           NSLocalizedDescriptionKey, @"File could not be created.", // FIXME: This really should be localized as the key implies.
                                            nil];
-                
                 *error = [[[NSError alloc] initWithDomain:RBErrorDomain
                                                      code:RBFileCreationError
                                                  userInfo:userInfo] autorelease];
             }
             
             return NO;
+        }
+        else {
+            [self writeHeaderData];
         }
     }
     
@@ -142,43 +121,34 @@ const NSInteger RBFileCreationError = 3000;
 
 - (void)writeHeaderData {
     
-    // If the log file hasn't been written to, then some header info is written.
-    if ([self writeCount] == 0) {
-        
-        // Uses a format similar to the extended log file format.
-        NSString * versionStr = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
-        NSString * dateStr = [NSDateFormatter localizedStringFromDate:[NSDate date]
-                                                            dateStyle:NSDateFormatterMediumStyle
-                                                            timeStyle:NSDateFormatterNoStyle];
-        NSString * fieldStr = @"time message";
-        
-        NSString * headerStr = [NSString stringWithFormat:
-                                @"#Version: %@\n#Date: %@\n#Fields: %@\n", 
-                                versionStr, 
-                                dateStr, 
-                                fieldStr];
-        NSData * headerData = [headerStr dataUsingEncoding:NSUTF8StringEncoding];
-        
-        NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:[self filePath] 
-                                                                     append:YES];
-        [outFile open];
-        [outFile write:[headerData bytes] maxLength:[headerData length]];
-        [outFile close];
-        
-        [self incrementWriteCount];
-    }
-}
-
-- (void)incrementWriteCount {
+    // Uses a format similar to the extended log file format.
+    NSDictionary * bundleInfo = [[NSBundle mainBundle] infoDictionary];
+    NSString * nameStr = [bundleInfo objectForKey:@"CFBundleName"];
+    NSString * versionStr = [bundleInfo objectForKey:@"CFBundleVersion"];
+    NSString * dateStr = [NSDateFormatter localizedStringFromDate:[NSDate date]
+                                                        dateStyle:NSDateFormatterMediumStyle
+                                                        timeStyle:NSDateFormatterNoStyle];
+    NSString * fieldStr = @"time message";
     
-    [self setWriteCount:[self writeCount] + 1];
+    NSString * headerStr = [NSString stringWithFormat:
+                            @"#Name: %@\n#Version: %@\n#Date: %@\n#Fields: %@\n", 
+                            nameStr,
+                            versionStr, 
+                            dateStr, 
+                            fieldStr];
+    NSData * headerData = [headerStr dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSOutputStream * outFile = [NSOutputStream outputStreamToFileAtPath:[self filePath] 
+                                                                 append:YES];
+    [outFile open];
+    [outFile write:[headerData bytes] maxLength:[headerData length]];
+    [outFile close];
 }
 
 
 #pragma mark - Memory Management
 
 - (void)dealloc {
-    [filePath release], filePath = nil;
     [super dealloc];
 }
 
