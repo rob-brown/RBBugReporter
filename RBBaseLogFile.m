@@ -9,6 +9,9 @@
 #import "RBBaseLogFile.h"
 
 
+const NSInteger RBLogFileCreationError = 3000;
+
+
 @interface RBBaseLogFile ()
 
 /**

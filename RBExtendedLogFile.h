@@ -26,8 +26,6 @@
 
 #import "RBBaseLogFile.h"
 
-extern const NSInteger RBFileCreationError;
-
 
 /**
  * A log file that uses a format similar to the extended log file format. 

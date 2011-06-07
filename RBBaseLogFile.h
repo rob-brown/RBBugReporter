@@ -10,6 +10,10 @@
 
 #import "RBLogFile.h"
 
+/// The error code for failing to create a log file.
+extern const NSInteger RBLogFileCreationError;
+
+
 @interface RBBaseLogFile : NSObject <RBLogFile>
 
 /**

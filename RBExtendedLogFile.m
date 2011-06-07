@@ -25,8 +25,17 @@
 #import "RBExtendedLogFile.h"
 #import "NSError+RBExtras.h"
 
+NSString * const kLogFileTimeFormat = @"HH:mm:ss";
+
 
 @interface RBExtendedLogFile ()
+
+/**
+ * A lazy loaded date formatter for formmating the times in the log file. Change 
+ * kLogFileTimeFormat to change the time format used in the log file. The date
+ * formatter is stored in an ivar since it is a heavy object.
+ */
+@property (nonatomic, retain) NSDateFormatter * timeFormatter;
 
 /**
  * Attempts to create the file if it isn't already. 
@@ -46,10 +55,9 @@
 @end
 
 
-const NSInteger RBFileCreationError = 3000;
-
-
 @implementation RBExtendedLogFile
+
+@synthesize timeFormatter;
 
 - (id)initWithFilePath:(NSString *)theFilePath {
     
@@ -67,10 +75,8 @@ const NSInteger RBFileCreationError = 3000;
         return NO;
     
     // Formats the log message.
-    NSString * now = [NSDateFormatter localizedStringFromDate:[NSDate date]
-                                                    dateStyle:NSDateFormatterNoStyle
-                                                    timeStyle:NSDateFormatterShortStyle];
-    NSString * logMsg = [NSString stringWithFormat:@"[%@] [%@]", now, text];
+    NSString * now = [[self timeFormatter] stringFromDate:[NSDate date]];
+    NSString * logMsg = [NSString stringWithFormat:@"[%@] [%@]\n", now, text];
     
     // Writes the formatted log message to the file.
     NSData * logData = [logMsg dataUsingEncoding:NSUTF8StringEncoding];
@@ -100,9 +106,9 @@ const NSInteger RBFileCreationError = 3000;
                 NSDictionary * userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                            NSLocalizedDescriptionKey, @"File could not be created.", // FIXME: This really should be localized as the key implies.
                                            nil];
-                *error = [[[NSError alloc] initWithDomain:RBErrorDomain
-                                                     code:RBFileCreationError
-                                                 userInfo:userInfo] autorelease];
+                *error = [NSError errorWithDomain:RBErrorDomain
+                                             code:RBLogFileCreationError
+                                         userInfo:userInfo];
             }
             
             return NO;
@@ -125,7 +131,6 @@ const NSInteger RBFileCreationError = 3000;
                                                         dateStyle:NSDateFormatterMediumStyle
                                                         timeStyle:NSDateFormatterNoStyle];
     NSString * fieldStr = @"time message";
-    
     NSString * headerStr = [NSString stringWithFormat:
                             @"#Name: %@\n#Version: %@\n#Date: %@\n#Fields: %@\n", 
                             nameStr,
@@ -141,10 +146,23 @@ const NSInteger RBFileCreationError = 3000;
     [outFile close];
 }
 
+- (NSDateFormatter *)timeFormatter {
+    
+    // The formatter is lazy loaded.
+    if (!timeFormatter) {
+        
+        timeFormatter = [[NSDateFormatter alloc] init];
+        [timeFormatter setDateFormat:kLogFileTimeFormat];
+    }
+    
+    return  timeFormatter;
+}
+
 
 #pragma mark - Memory Management
 
 - (void)dealloc {
+    [timeFormatter release];
     [super dealloc];
 }
 

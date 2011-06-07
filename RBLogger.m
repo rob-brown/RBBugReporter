@@ -58,6 +58,13 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
 
 @interface RBLogger ()
 
+/**
+ * A lazy loaded date formatter for formmating the dates for the logger. Change 
+ * kLogFileDateTemplate to change the date format used. The date formatter is 
+ * stored in an ivar since it is a heavy object.
+ */
+@property (nonatomic, retain) NSDateFormatter * dateFormatter;
+
 /// A dispatch queue used for serializing log messages. 
 @property (nonatomic, assign) dispatch_queue_t loggerQueue;
 
@@ -82,6 +89,11 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
  */
 + (NSString *)logFileDirectory;
 
+/**
+ * Creates the log file director if it hasn't already.
+ */
+- (void)createLogFileDirectory;
+
 @end
 
 
@@ -90,7 +102,7 @@ static RBLogger * sharedLogger = nil;
 
 @implementation RBLogger
 
-@synthesize loggerQueue;
+@synthesize dateFormatter, loggerQueue;
 
 - (void)logError:(NSError *)error {
     [self logMessage:[NSString stringWithError:error]];
@@ -126,10 +138,7 @@ static RBLogger * sharedLogger = nil;
 + (NSString *)logFilePathForDate:(NSDate *)date {
     
     // Generates the file name.
-	NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
-	[formatter setDateFormat:kLogFileDateTemplate];
-    NSString * formattedDate = [formatter stringFromDate:date];
-    [formatter release];
+    NSString * formattedDate = [[[self sharedLogger] dateFormatter] stringFromDate:date];
     NSString * fileName = [NSString stringWithFormat:@"LogFile%@.%@", formattedDate, kLogFileExtension];
     
     // Generates an array of path components.
@@ -188,6 +197,36 @@ static RBLogger * sharedLogger = nil;
     }
 }
 
+- (void)createLogFileDirectory {
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    NSString * logFileDir = [[self class] logFileDirectory];
+    NSError * error = nil;
+    
+    // Creates the log file director if it hasn't already.
+    [fileManager createDirectoryAtPath:logFileDir
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:&error];
+    
+    if (error) {
+        NSLog(@"%@", [NSString stringWithError:error]);
+    }
+    
+    // ???: Do I need to do anything else?
+}
+
+- (NSDateFormatter *)dateFormatter {
+    
+    if (!dateFormatter) {
+        
+        dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:kLogFileDateTemplate];
+    }
+    
+    return dateFormatter;
+}
+
 
 #pragma mark - Singleton methods
 
@@ -206,6 +245,8 @@ static RBLogger * sharedLogger = nil;
 - (id) initialize {
     
     if ((self = [super init])) {
+        
+        [self createLogFileDirectory];
         [self setLoggerQueue:dispatch_queue_create("com.robertbrown.RBLoggerQueue", NULL)];
         
         // Auto-purges old log files if activated.
