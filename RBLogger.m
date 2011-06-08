@@ -172,7 +172,8 @@ static RBLogger * sharedLogger = nil;
     // Iterates through all of the files and deletes any that are too old.
     for (NSString * file in files) {
         
-        NSDictionary * attributes = [fileManager attributesOfItemAtPath:file error:&error];
+        NSString * path = [NSString pathWithComponents:[NSArray arrayWithObjects:[self logFileDirectory], file, nil]];
+        NSDictionary * attributes = [fileManager attributesOfItemAtPath:path error:&error];
         
         if (error) {
             [RBReporter logError:error];
@@ -208,12 +209,9 @@ static RBLogger * sharedLogger = nil;
            withIntermediateDirectories:YES
                             attributes:nil
                                  error:&error];
-    
     if (error) {
         NSLog(@"%@", [NSString stringWithError:error]);
     }
-    
-    // ???: Do I need to do anything else?
 }
 
 - (NSDateFormatter *)dateFormatter {
@@ -222,6 +220,7 @@ static RBLogger * sharedLogger = nil;
         
         dateFormatter = [[NSDateFormatter alloc] init];
         [dateFormatter setDateFormat:kLogFileDateTemplate];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     }
     
     return dateFormatter;

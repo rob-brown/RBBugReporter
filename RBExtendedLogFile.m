@@ -74,9 +74,12 @@ NSString * const kLogFileTimeFormat = @"HH:mm:ss";
     if (![self createFile:error])
         return NO;
     
+    // Quotes in strings are doubled as defined by the extended log file format.
+    text = [text stringByReplacingOccurrencesOfString:@"\"" withString:@"\"\""];
+    
     // Formats the log message.
     NSString * now = [[self timeFormatter] stringFromDate:[NSDate date]];
-    NSString * logMsg = [NSString stringWithFormat:@"[%@] [%@]\n", now, text];
+    NSString * logMsg = [NSString stringWithFormat:@"%@ \"%@\"\n", now, text];
     
     // Writes the formatted log message to the file.
     NSData * logData = [logMsg dataUsingEncoding:NSUTF8StringEncoding];
@@ -130,7 +133,7 @@ NSString * const kLogFileTimeFormat = @"HH:mm:ss";
     NSString * dateStr = [NSDateFormatter localizedStringFromDate:[NSDate date]
                                                         dateStyle:NSDateFormatterMediumStyle
                                                         timeStyle:NSDateFormatterNoStyle];
-    NSString * fieldStr = @"time message";
+    NSString * fieldStr = @"time string";
     NSString * headerStr = [NSString stringWithFormat:
                             @"#Name: %@\n#Version: %@\n#Date: %@\n#Fields: %@\n", 
                             nameStr,
@@ -153,6 +156,7 @@ NSString * const kLogFileTimeFormat = @"HH:mm:ss";
         
         timeFormatter = [[NSDateFormatter alloc] init];
         [timeFormatter setDateFormat:kLogFileTimeFormat];
+        [timeFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     }
     
     return  timeFormatter;
