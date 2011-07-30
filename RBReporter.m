@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 //
 
+#import <dispatch/dispatch.h>
+
 #import "RBReporter.h"
 #import "RBLogger.h"
 #import "RBAttachment.h"
@@ -44,7 +46,7 @@ static NSString * const kReportActionReport = @"Report";
 
 @synthesize alertMsg, navController, emailBuilder;
 
-- (id) init {
+- (id)init {
     
     if ((self = [super init])) {
         
@@ -119,13 +121,16 @@ static NSString * const kReportActionReport = @"Report";
 }
 
 + (void) presentAlertWithTitle:(NSString *)title message:(NSString *)message {
-	UIAlertView * alert = [[UIAlertView alloc] initWithTitle:title 
-													 message:message 
-													delegate:nil 
-										   cancelButtonTitle:@"OK" 
-										   otherButtonTitles:nil];
-	[alert show];
-	[alert release];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIAlertView * alert = [[UIAlertView alloc] initWithTitle:title 
+                                                         message:message 
+                                                        delegate:nil 
+                                               cancelButtonTitle:@"OK" 
+                                               otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+    });
 }
 
 

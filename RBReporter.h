@@ -31,6 +31,9 @@
  * A class for generating reports, logging errors, etc. Includes support for 
  * Flurry. The bug reporter comes with many defaults which can be overriden as
  * necessary through various accessor methods.
+ *
+ * @todo Turn off NSLog when not debugging.
+ * @todo Extract the email reporting into its own class so this is class is just a facade.
  */
 @interface RBReporter : NSObject <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
 

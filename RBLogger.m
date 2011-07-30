@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 //
 
+#import <dispatch/dispatch.h>
+
 #import "RBLogger.h"
 #import "NSString+RBExtras.h"
 #import "NSDate+RBExtras.h"
@@ -40,19 +42,13 @@ static const NSUInteger kDefaultLogFileAgeLimit = 30;
  */
 static const BOOL kAutoPurgeLogFiles = YES;
 
-/**
- * The template to use for naming log files.
- */
+/// The template to use for naming log files.
 static NSString * const kLogFileDateTemplate = @"yyyy-MM-dd";
 
-/**
- * The extension to use for log files.
- */
+/// The extension to use for log files.
 static NSString * const kLogFileExtension = @"log";
 
-/**
- * The name of the directory for the log files.
- */
+/// The name of the directory for the log files.
 static NSString * const kLogFileDirectoryName = @"LogFiles";
 
 
@@ -65,8 +61,8 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
  */
 @property (nonatomic, retain) NSDateFormatter * dateFormatter;
 
-/// A dispatch queue used for serializing log messages. 
-@property (nonatomic, assign) dispatch_queue_t loggerQueue;
+/// A dispatch queue used for serializing requests.
+@property (nonatomic, assign, readwrite) dispatch_queue_t loggerQueue;
 
 /**
  * Private initializer.
@@ -90,7 +86,7 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
 + (NSString *)logFileDirectory;
 
 /**
- * Creates the log file director if it hasn't already.
+ * Creates the log file directory if it hasn't already.
  */
 - (void)createLogFileDirectory;
 
@@ -231,12 +227,16 @@ static RBLogger * sharedLogger = nil;
 
 + (RBLogger *) sharedLogger {
     
+#if !defined(__clang_analyzer__)
+    
     @synchronized(self) {
     
         if (!sharedLogger) {
             sharedLogger = [[super allocWithZone:nil] initialize];
         }
     }
+    
+#endif
     
     return sharedLogger;
 }
@@ -246,7 +246,7 @@ static RBLogger * sharedLogger = nil;
     if ((self = [super init])) {
         
         [self createLogFileDirectory];
-        [self setLoggerQueue:dispatch_queue_create("com.robertbrown.RBLoggerQueue", NULL)];
+        [self setLoggerQueue:dispatch_queue_create("com.RobertBrown.RBLoggerQueue", NULL)];
         
         // Auto-purges old log files if activated.
         if (kAutoPurgeLogFiles) {
@@ -277,7 +277,7 @@ static RBLogger * sharedLogger = nil;
     return self;
 }
 
-- (void) release {
+- (oneway void) release {
     // Do nothing.
 }
 

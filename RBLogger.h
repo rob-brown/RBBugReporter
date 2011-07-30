@@ -29,8 +29,15 @@
 @interface RBLogger : NSObject
 
 /**
+ * A dispatch queue used for serializing requests. If you call a method in this 
+ * class that is not marked as threadsafe in the documentation, you should run 
+ * that call in a block dispatched to this queue to guarntee thread safety.
+ */
+@property (nonatomic, assign, readonly) dispatch_queue_t loggerQueue;
+
+/**
  * Logs an error. Simply calls logMessage: with a string generated from the 
- * error.
+ * error. Threadsafe.
  *
  * @param error The error to log.
  */
@@ -38,14 +45,14 @@
 
 /**
  * Logs an exception. Simply calls logMessage: with a string generated from the 
- * exception.
+ * exception. Threadsafe
  *
  * @param exception The exception to log.
  */
 - (void)logException:(NSException *)exception;
 
 /**
- * Writes the given message to the log file.
+ * Writes the given message to the log file. Threadsafe.
  *
  * @param msg The unformatted message to write to the log file.
  *
