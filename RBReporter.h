@@ -34,7 +34,7 @@
  *
  * @todo Turn off NSLog when not debugging.
  */
-@interface RBReporter  // Yes, this is a root class.
+@interface RBReporter : NSObject
 
 // -----------------------------------------------------------------------------
 // Reporting/Logging Methods

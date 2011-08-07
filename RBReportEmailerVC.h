@@ -1,6 +1,5 @@
 //
 //  RBReportEmailerVC.h
-//  AboutOne
 //
 //  Created by Robert Brown on 8/6/11.
 //  Copyright 2011 Robert Brown. All rights reserved.
@@ -11,7 +10,7 @@
 
 @protocol RBEmailBuilder;
 
-@interface RBReportEmailerVC : MFMailComposeViewController <MFMailComposeViewControllerDelegate>
+@interface RBReportEmailerVC : MFMailComposeViewController <MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
 
 - (id)initWithEmailBuilder:(id<RBEmailBuilder>)builder;
 
