@@ -43,44 +43,11 @@ static RBLogFileFactory * sharedFactory = nil;
     
     @synchronized(self) {
     
-        if (!sharedFactory) {
-            
-            sharedFactory = [[super allocWithZone:nil] init];
-        }
+        if (!sharedFactory)
+            sharedFactory = [super sharedInstance];
         
         return sharedFactory;
     }
 }
-
-+ (id) allocWithZone:(NSZone *)zone {
-    
-    // The retain is needed to satisfy the static analyzer.
-    return [[self sharedFactory] retain];
-}
-
-- (id) copyWithZone:(NSZone *)zone {
-    return self;
-}
-
-- (id) init {
-    return self;
-}
-
-- (id) retain {
-    return self;
-}
-
-- (oneway void) release {
-    // Do nothing.
-}
-
-- (id) autorelease {
-    return self;
-}
-
-- (NSUInteger) retainCount {
-    return NSUIntegerMax;
-}
-
 
 @end

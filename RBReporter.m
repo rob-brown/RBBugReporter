@@ -27,97 +27,37 @@
 #import "RBReporter.h"
 #import "RBLogger.h"
 #import "RBAttachment.h"
-#import "UIWindow+RBExtras.h"
+#import "UIApplication+RBExtras.h"
 #import "NSString+RBExtras.h"
+#import "RBReportEmailerVC.h"
 
 #if defined(FLURRY)
 #import "FlurryAPI.h"
 #endif
 
-static NSString * const kReportActionCancel = @"Cancel";
-static NSString * const kReportActionReport = @"Report";
-
-// ???: Should I set the UINavigationControllerDelegate so I can watch the view controller pops?
-// This could prevent memory leaks when the mail composser is force popped externally.
-// I should also keep the previous delegate around, if any, so that it can still receive messages.
-
-
 @implementation RBReporter
 
-@synthesize alertMsg, navController, emailBuilder;
-
-- (id)init {
++ (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder inNavController:(UINavigationController *)navController {
     
-    if ((self = [super init])) {
-        
-        // Automatically discovers the nav controller.
-        NSAutoreleasePool * pool = [NSAutoreleasePool new];
-        UIWindow * keyWindow = [[UIApplication sharedApplication] keyWindow];
-        UINavigationController * aNavController = [keyWindow topNavController];
-        [self setNavController:aNavController];
-        
-        // Sets up the defaults for all the strings.
-        [self setAlertMsg:@"A critical error has occurred. Please submit a bug report so that we may better serve you."];
-        
-        [pool release];
-    }
-    
-    return self;
-}
-
-- (void) presentBugAlertWithBuilder:(id<RBEmailBuilder>)builder {
-    
-    // The bug reporter must explicitly retain itself to guarantee it will be around.
-    [self retain];
-    
-    // Grabs the builder so it can be used in the email composer.
-    [self setEmailBuilder:builder];
-    
-    UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"Report Bug" 
-                                                         message:[self alertMsg]
-                                                        delegate:self 
-                                               cancelButtonTitle:kReportActionCancel 
-                                               otherButtonTitles:kReportActionReport, nil];
-    [alertView setDelegate:self];
-    [alertView show];
-    [alertView release];
-}
-
-- (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder {
-    
-    // The bug reporter must explicitly retain itself to guarantee it will be around.
-    [self retain];
-    
-    // Checks if the device is set up to send email.
-    NSAutoreleasePool * pool = [NSAutoreleasePool new];
-    if (![MFMailComposeViewController canSendMail]) {
-        [[self class] presentAlertWithTitle:@"Can't Send Email"
-                                    message:@"Your device is not set up for sending email. Please set up an email account in the Setttings app."];
-        [pool release];
+    // First checks if emails can be sent.
+    if (![RBReportEmailerVC canSendMail]) {
+        [self presentAlertWithTitle:@"Can't Send Email"
+                            message:@"Your device is not set up for sending email. Please set up an email account in the Setttings app."];
         return;
     }
     
-    // Sets up the mail composer.
-    MFMailComposeViewController * mailComposer = [MFMailComposeViewController new];
-    [mailComposer setMailComposeDelegate:self];
-    [mailComposer setSubject:[builder subjectLine]];
-    [mailComposer setToRecipients:[builder recipients]];
-    [mailComposer setMessageBody:[builder emailMessage]
-                          isHTML:[builder isHTML]];
+    RBReportEmailerVC * emailer = [[RBReportEmailerVC alloc] initWithEmailBuilder:builder];
     
-    // Adds all of the attachments, if any. 
-    NSArray * attachments = [builder attachments];
+    // Infers the nav controller if it's not specified.
+    if (!navController)
+        navController = [UIApplication topNavController];
     
-    for (id<RBAttachment> attachment in attachments) {
-        [mailComposer addAttachmentData:[attachment data]
-                               mimeType:[attachment MIMEType]
-                               fileName:[attachment fileName]];
-    }
-    
-    // Shows the bug report email.
-    [[self navController] presentModalViewController:mailComposer animated:YES];
-    [mailComposer release];
-    [pool release];
+    [navController presentModalViewController:emailer animated:YES];
+    [emailer release];
+}
+
++ (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder {
+    [self presentBugReportComposerWithBuilder:builder inNavController:nil];
 }
 
 + (void) presentAlertWithTitle:(NSString *)title message:(NSString *)message {
@@ -190,45 +130,5 @@ static NSString * const kReportActionReport = @"Report";
     [FlurryAPI logEvent:event];
 #endif
 }
-
-
-#pragma mark - UIAlertViewDelegate methods
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
-    NSString * buttonTitle = [alertView buttonTitleAtIndex:buttonIndex];
-    
-    if ([buttonTitle isEqualToString:kReportActionCancel]) {
-        // Do Nothing.
-    }
-    else if ([buttonTitle isEqualToString:kReportActionReport]) {
-        [self presentBugReportComposerWithBuilder:[self emailBuilder]];
-    }
-    
-    // This is the release associated with the retain in presentBugAlert.
-    [self release];
-}
-
-
-#pragma mark - MFMailComposeViewControllerDelegate methods
-
-- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error {
-	
-	[[self navController] dismissModalViewControllerAnimated:YES];
-    
-    // This is the release associated with the retain in presentBugReportComposer.
-    [self release];
-}
-
-
-#pragma mark - Memory Management
-
-- (void)dealloc {
-    [alertMsg release];
-    [navController release];
-    [emailBuilder release];
-    [super dealloc];
-}
-
 
 @end

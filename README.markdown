@@ -10,7 +10,7 @@
 
 Flurry is an optional feature. To use the Flurry features you must include the Flurry SDK which can be found at [Flurry.com][1].
 
-`RBReporter` is written for iOS 4.0+ support. It can probably be modified for 3.0+ support by switching GCD with NSOperationQueue. `RBReporter` has not been written to work with the Mac platform. It would be nice if `RBReporter` is modified to be independent of iOS so it could be used in Mac software. 
+`RBReporter` is written for iOS 4.0+ support. It can be modified for 3.0+ support by switching GCD with NSOperationQueue. `RBReporter` has not been written with the intent to work with the Mac platform. However, it can be easily extended. The only part that should be iOS-dependent is `RBBugReportEmailBuilder`. You can modify the email code to work with Mac. Alternatively, you could ignore emailing and simply send log files over the network, for example.
 
 ##Email
 
@@ -18,22 +18,15 @@ Flurry is an optional feature. To use the Flurry features you must include the F
 One of the standard ways for a user to report bugs is through email. The `RBEmailBuilder` protocol provides a standard interface for generating email content. `RBEmailBuilder` uses a simple builder pattern (see [Design Patterns: Elements of Reusable Object-Oriented Software][3] or [Wikipedia][4]). `RBBaseEmailBuilder` provides a basic implementation of the `RBEmailBuilder` protocol which can be inherited by subclasses. 
 
 ###Receiving email reports
-`RBReporter` provides a template email composer. It has two different ways it can be presented. There is a standard alert view that can be presented which asks the user if they want to report a bug. Alternatively, you can present the mail composer directly in response to whatever action you choose. The following gives an example of each. 
+`RBReporter` provides a template email composer, but you can create your own email builders by creating a class that conforms to `RBEmailBuilder`. You can present the mail composer from anywhere in your code, incuding non-view controllers. Typically you want to prompt the user to report a bug or provide a button for sending reports (see example below).
 
 ```objective-c
-// Presents an alert that asks the user to report a bug. If they accept, then the email composer is presented.
-RBBugReportEmailBuilder * builder [[RBBugReportEmailBuilder alloc] initWithError:error];
-RBReporter * reporter = [[RBReporter alloc] init];
-[reporter presentBugAlertWithBuilder:builder];
-[builder release];
-[reporter release];
+// Prompt the user to report an error...
 
-// Presents the email composer directly. This could be in response to the user pressing a bug report button or by some other means.
-RBBugReportEmailBuilder * builder [[RBBugReportEmailBuilder alloc] initWithErrorMessage:@"Testing reporter"];
-RBReporter * reporter = [[RBReporter alloc] init];
-[reporter presentBugReportComposerWithBuilder:builder];
+// Present the email composer.
+RBBugReportEmailBuilder * builder [[RBBugReportEmailBuilder alloc] initWithError:error];
+[RBReporter presentBugReportComposerWithBuilder:builder];
 [builder release];
-[reporter release];
 ```
 
 ##User notifications
@@ -47,7 +40,7 @@ RBReporter * reporter = [[RBReporter alloc] init];
 ##Data Logging
 
 ###Logging errors
-Logging errors are made very easy. Just pass the error to `RBReporter`. Exceptions can be handled similarly.
+Logging errors is made very easy. Just pass the error to `RBReporter`. Exceptions can be handled similarly.
 
 ```objective-c
 NSError * error = nil;
@@ -60,22 +53,24 @@ if (error) {
 ```
 
 ###RBLogger
-There is a logger underneath `RBReporter`. `RBReporter` provides a facade to the logger; however, if you need to directly access the logger, you may. The logger is also designed to create a new log file every day. This keeps log files smaller and makes it easy to clean up old log files. Furthermore, the logger is also designed to automatically purge old files if desired. Simply set `kAutoPurgeLogFiles` in RBLogger to YES and `kDefaultLogFileAgeLimit` to the number of days of log files to keep.
+`RBReporter` provides a facade to the underlying logger; however, if you need to directly access the logger, you may. The logger is also designed to create a new log file every day. This keeps log files smaller and makes it easy to clean up old log files. Furthermore, the logger is designed to automatically purge old files if desired. Simply set `kAutoPurgeLogFiles` in RBLogger to YES and `kDefaultLogFileAgeLimit` to the number of days of log files to keep.
 
 ###RBLogFile
 `RBLogFile` provides an interface for the log files `RBLogger` uses. These files can direct their output to a file on the local file system or on a remote server. This also makes the format of the log file independent of the logger. `RBExtendedLogFile` is included for use as is or as a template for other log files. It uses a modification of the extended log file format. `RBBaseLogFile` provides a simple implementation and may be subclassed to define custom behavior.
 
 ###RBLogFileFactory
-`RBLogger` is intended to only use one type of log file. `RBLogFileFactory` is responsible for creating log files so  `RBLogger` is doesn't need to know anything about your own implementations of `RBLogFile`. By changing `newLogFileWithPath:` you can change the file format of your log files.
+`RBLogger` is intended to only use one type of log file. `RBLogFileFactory` is responsible for creating log files so `RBLogger` doesn't need to know anything about your own implementation of `RBLogFile`. By changing `newLogFileWithPath:` you can change the file format of your log files.
 
 ##Flurry
 In addition to standard reporting methods, `RBReporter` provides an optional facade to Flurry. Flurry reporting can also be disabled when debugging to prevent mixing debugging sessions with regular user sessions.
 
 ###Including Flurry
-1. Include the Flurry SDK. See [Flurry.com][1] for details.
-2. In the Xcode build settings, look for "Preprocessor Macros". Define the macro FLURRY for all build configurations.
-3. (Optional) To disable Flurry reports when debugging, define the macro DEBUG for just the debug build configuration.
-
+ 1. Include the Flurry SDK. See [Flurry.com][1] for details.
+ 
+ 2. In the Xcode build settings, look for "Preprocessor Macros". Define the macro FLURRY for all build configurations.
+ 
+ 3. (Optional) To disable Flurry reports when debugging, define the macro DEBUG for just the debug build configuration.
+ 
 ###Flurry reporting
 There are several simple methods for Flurry. `RBReporter` can log errors, exceptions, and events. The following gives examples of each.
 

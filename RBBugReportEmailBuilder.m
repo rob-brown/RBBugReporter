@@ -45,6 +45,10 @@
 
 @synthesize commentHeader, errorHeader, deviceHeader, commentMsg, errMsg, deviceMsg;
 
+- (id)init {
+    return [self initWithErrorMessage:@""];
+}
+
 - (id) initWithError:(NSError *)error {
     
     if ((self = [super init])) {

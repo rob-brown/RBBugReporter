@@ -65,7 +65,7 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
 @property (nonatomic, assign, readwrite) dispatch_queue_t loggerQueue;
 
 /**
- * Private initializer.
+ * Protected initializer.
  *
  * @return self;
  */
@@ -214,7 +214,7 @@ static RBLogger * sharedLogger = nil;
     
     if (!dateFormatter) {
         
-        dateFormatter = [[NSDateFormatter alloc] init];
+        dateFormatter = [NSDateFormatter new];
         [dateFormatter setDateFormat:kLogFileDateTemplate];
         [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     }
@@ -227,16 +227,12 @@ static RBLogger * sharedLogger = nil;
 
 + (RBLogger *) sharedLogger {
     
-#if !defined(__clang_analyzer__)
-    
     @synchronized(self) {
     
         if (!sharedLogger) {
-            sharedLogger = [[super allocWithZone:nil] initialize];
+            sharedLogger = [super sharedInstance];
         }
     }
-    
-#endif
     
     return sharedLogger;
 }
@@ -246,7 +242,11 @@ static RBLogger * sharedLogger = nil;
     if ((self = [super init])) {
         
         [self createLogFileDirectory];
-        [self setLoggerQueue:dispatch_queue_create("com.RobertBrown.RBLoggerQueue", NULL)];
+        
+        // Sets up the dispatch queue.
+        dispatch_queue_t queue = dispatch_queue_create("com.RobertBrown.RBLoggerQueue", NULL);
+        dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+        [self setLoggerQueue:queue];
         
         // Auto-purges old log files if activated.
         if (kAutoPurgeLogFiles) {
@@ -257,36 +257,6 @@ static RBLogger * sharedLogger = nil;
     }
     
     return self;
-}
-
-+ (id) allocWithZone:(NSZone *)zone {
-    
-    // The retain is needed to satisfy the static analyzer.
-    return [[self sharedLogger] retain];
-}
-
-- (id) copyWithZone:(NSZone *)zone {
-    return self;
-}
-
-- (id) init {
-    return self;
-}
-
-- (id) retain {
-    return self;
-}
-
-- (oneway void) release {
-    // Do nothing.
-}
-
-- (id) autorelease {
-    return self;
-}
-
-- (NSUInteger) retainCount {
-    return NSUIntegerMax;
 }
 
 @end

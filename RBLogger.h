@@ -24,9 +24,10 @@
 
 #import <Foundation/Foundation.h>
 
+#import "RBSingleton.h"
 #import "RBLogFile.h"
 
-@interface RBLogger : NSObject
+@interface RBLogger : RBSingleton
 
 /**
  * A dispatch queue used for serializing requests. If you call a method in this 

@@ -23,8 +23,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <MessageUI/MFMailComposeViewController.h>
 
+#import "RBSingleton.h"
 #import "RBEmailBuilder.h"
 
 /**
@@ -33,44 +33,31 @@
  * necessary through various accessor methods.
  *
  * @todo Turn off NSLog when not debugging.
- * @todo Extract the email reporting into its own class so this is class is just a facade.
  */
-@interface RBReporter : NSObject <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
-
-/**
- * The message body of the alert view presented when calling presentBugAlert.
- */
-@property (nonatomic, copy) NSString * alertMsg;
-
-/**
- * A navigation controller is necessary to push an email view. setNavController: 
- * may be used to specify the navigation controller if it isn't automatically
- * discovered properly.
- */
-@property (nonatomic, retain) UINavigationController * navController;
-
-/**
- * Class the generates the email to be presented.
- */
-@property (nonatomic, retain) id<RBEmailBuilder> emailBuilder;
+@interface RBReporter  // Yes, this is a root class.
 
 // -----------------------------------------------------------------------------
 // Reporting/Logging Methods
 // -----------------------------------------------------------------------------
 
 /**
- * Presents an alert view which asks the user if they want to report a bug. If 
- * the user wants to report a bug, then an email composer is presented.
- */
-- (void) presentBugAlertWithBuilder:(id<RBEmailBuilder>)builder;
-
-/**
  * Generates and presents the email composer modally. This is 3.0 compatible.
  * To support earlier versions, a different technique will need to be used.
- * This may be accessed directly if you don't want to use -presentBugAlert 
- * before presenting the mail composer.
+ *
+ * @param builder The email builder to use to generate the email report.
+ * @param navController The navigation controller to present the email reporter 
+ * in. Pass nil and RBReporter will attempt to discover which navigation 
+ * controller the emailer should be presented in. 
  */
-- (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder;
++ (void)presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder inNavController:(UINavigationController *)navController;
+
+/**
+ * A convenience method to +presentBugReportComposerWithBuilder:inNavController: 
+ * if you don't want to specify a navigation controller.
+ *
+ * @param builder The email builder to use to generate the email report.
+ */
++ (void)presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder;
 
 /**
  * Presents a simple alert view with only a cancel button with no actions. Used
@@ -80,7 +67,7 @@
  * @param name The title of the alert view.
  * @param message The message body of the alert view.
  */
-+ (void) presentAlertWithTitle:(NSString *)title message:(NSString *)message;
++ (void)presentAlertWithTitle:(NSString *)title message:(NSString *)message;
 
 /**
  * Convenient error logger given an NSError.
