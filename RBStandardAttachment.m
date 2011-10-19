@@ -64,10 +64,5 @@
         return [[NSURL URLWithString:[self fileName]] MIMEType];
 }
 
-- (void)dealloc {
-    [fileName release];
-    [fileMIMEType release];
-    [super dealloc];
-}
 
 @end

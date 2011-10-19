@@ -57,10 +57,5 @@ static NSString * const kDefaultEmail = @"MyEmail@example.com";
     return [NSArray array];
 }
 
-- (void)dealloc {
-    [recipients release];
-    [subjectLine release];
-    [super dealloc];
-}
 
 @end

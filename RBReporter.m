@@ -53,7 +53,6 @@
         navController = [UIApplication topNavController];
     
     [navController presentModalViewController:emailer animated:YES];
-    [emailer release];
 }
 
 + (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder {
@@ -69,7 +68,6 @@
                                                cancelButtonTitle:@"OK" 
                                                otherButtonTitles:nil];
         [alert show];
-        [alert release];
     });
 }
 

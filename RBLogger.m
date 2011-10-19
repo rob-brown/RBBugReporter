@@ -59,17 +59,10 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
  * kLogFileDateTemplate to change the date format used. The date formatter is 
  * stored in an ivar since it is a heavy object.
  */
-@property (nonatomic, retain) NSDateFormatter * dateFormatter;
+@property (nonatomic, strong) NSDateFormatter * dateFormatter;
 
 /// A dispatch queue used for serializing requests.
 @property (nonatomic, assign, readwrite) dispatch_queue_t loggerQueue;
-
-/**
- * Protected initializer.
- *
- * @return self;
- */
-- (id) initialize;
 
 /**
  * Returns the path of the log file for the given date.
@@ -123,7 +116,7 @@ static RBLogger * sharedLogger = nil;
     // Gets the file path with the given date.
     NSString * filePath = [[self class] logFilePathForDate:date];
     
-    return [[[RBLogFileFactory sharedFactory] newLogFileWithPath:filePath] autorelease];
+    return [[RBLogFileFactory sharedFactory] newLogFileWithPath:filePath];
 }
 
 - (id<RBLogFile>)currentLogFile {
@@ -227,26 +220,16 @@ static RBLogger * sharedLogger = nil;
 
 + (RBLogger *) sharedLogger {
     
-    @synchronized(self) {
-    
-        if (!sharedLogger) {
-            sharedLogger = [super sharedInstance];
-        }
-    }
-    
-    return sharedLogger;
-}
-
-- (id) initialize {
-    
-    if ((self = [super init])) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedLogger = [super sharedInstance];
         
         [self createLogFileDirectory];
         
         // Sets up the dispatch queue.
         dispatch_queue_t queue = dispatch_queue_create("com.RobertBrown.RBLoggerQueue", NULL);
         dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
-        [self setLoggerQueue:queue];
+        [sharedLogger setLoggerQueue:queue];
         
         // Auto-purges old log files if activated.
         if (kAutoPurgeLogFiles) {
@@ -254,9 +237,9 @@ static RBLogger * sharedLogger = nil;
                 [[self class] purgeOldLogFiles:kDefaultLogFileAgeLimit];
             });
         }
-    }
+    });
     
-    return self;
+    return sharedLogger;
 }
 
 @end

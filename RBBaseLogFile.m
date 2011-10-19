@@ -56,9 +56,5 @@ const NSInteger RBLogFileCreationError = 3000;
     return [[NSFileManager defaultManager] fileExistsAtPath:[self filePath]];
 }
 
-- (void)dealloc {
-    [filePath release];
-    [super dealloc];
-}
 
 @end

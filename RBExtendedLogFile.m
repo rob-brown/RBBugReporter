@@ -35,7 +35,7 @@ NSString * const kLogFileTimeFormat = @"HH:mm:ss";
  * kLogFileTimeFormat to change the time format used in the log file. The date
  * formatter is stored in an ivar since it is a heavy object.
  */
-@property (nonatomic, retain) NSDateFormatter * timeFormatter;
+@property (nonatomic, strong) NSDateFormatter * timeFormatter;
 
 /**
  * Attempts to create the file if it isn't already. 
@@ -165,9 +165,5 @@ NSString * const kLogFileTimeFormat = @"HH:mm:ss";
 
 #pragma mark - Memory Management
 
-- (void)dealloc {
-    [timeFormatter release];
-    [super dealloc];
-}
 
 @end

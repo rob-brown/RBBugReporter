@@ -74,15 +74,15 @@
 - (void)initDefaults {
     
     // Sets up the defaults for all the strings.
-    NSAutoreleasePool * pool = [NSAutoreleasePool new];
-    [self setSubjectLine:@"Bug Report"];
-    [self setCommentHeader:@"[[Comments]]"];
-    [self setErrorHeader:@"[[Error]]"];
-    [self setDeviceHeader:@"[[Device Info]]"];
-    [self setCommentMsg:@"\n\n\n\n\n--------------------\nAdd any additional comments above, such as how to reproduce the bug.\n"];
-    [self setDeviceMsg:[[self class] deviceInfoString]];
+    @autoreleasepool {
+        [self setSubjectLine:@"Bug Report"];
+        [self setCommentHeader:@"[[Comments]]"];
+        [self setErrorHeader:@"[[Error]]"];
+        [self setDeviceHeader:@"[[Device Info]]"];
+        [self setCommentMsg:@"\n\n\n\n\n--------------------\nAdd any additional comments above, such as how to reproduce the bug.\n"];
+        [self setDeviceMsg:[[self class] deviceInfoString]];
     
-    [pool release];
+    }
 }
 
 - (NSString *)emailMessage {

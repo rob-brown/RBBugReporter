@@ -32,7 +32,7 @@
  * An array of NSStrings that hold the email addresses of all recipients for the
  * bug report email.
  */
-@property (nonatomic, retain) NSArray * recipients;
+@property (nonatomic, strong) NSArray * recipients;
 
 /**
  * The subject line of the bug report email.
