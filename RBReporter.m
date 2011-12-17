@@ -92,6 +92,12 @@
     [[RBLogger sharedLogger] logMessage:msg];
 }
 
++ (void)logDebugMessage:(NSString *)msg {
+#if DEBUG
+    [self logMessage:msg];
+#endif
+}
+
 
 #pragma mark - Flurry methods
 

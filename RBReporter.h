@@ -90,6 +90,13 @@
  */
 + (void)logMessage:(NSString *)msg;
 
+/**
+ * Like +logMessage: except it only logs the message if DEBUG is defined.
+ *
+ * @param msg The message to log.
+ */
++ (void)logDebugMessage:(NSString *)msg;
+
 // -----------------------------------------------------------------------------
 // Flurry Methods
 // -----------------------------------------------------------------------------

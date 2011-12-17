@@ -81,7 +81,7 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
 /**
  * Creates the log file directory if it hasn't already.
  */
-- (void)createLogFileDirectory;
++ (void)createLogFileDirectory;
 
 @end
 
@@ -187,7 +187,7 @@ static RBLogger * sharedLogger = nil;
     }
 }
 
-- (void)createLogFileDirectory {
++ (void)createLogFileDirectory {
     
     NSFileManager * fileManager = [NSFileManager defaultManager];
     NSString * logFileDir = [[self class] logFileDirectory];
@@ -218,7 +218,7 @@ static RBLogger * sharedLogger = nil;
 
 #pragma mark - Singleton methods
 
-+ (RBLogger *) sharedLogger {
++ (RBLogger *)sharedLogger {
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
