@@ -76,18 +76,24 @@
 
 + (void)logError:(NSError *)error {
 	
+    if (!error) return;
+    
     NSLog(@"%@", [NSString stringWithError:error]);
     [[RBLogger sharedLogger] logError:error];
 }
 
 + (void)logException:(NSException *)exception {
     
+    if (!exception) return;
+    
     NSLog(@"%@", [NSString stringWithException:exception]);
     [[RBLogger sharedLogger] logException:exception];
 }
 
 + (void)logMessage:(NSString *)msg {
-
+    
+    if (!msg) return;
+    
     NSLog(@"%@", msg);
     [[RBLogger sharedLogger] logMessage:msg];
 }
