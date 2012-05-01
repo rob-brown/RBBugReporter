@@ -25,14 +25,13 @@
 #import <Foundation/Foundation.h>
 
 #import "RBLogFile.h"
-#import "RBSingleton.h"
 
 
 /**
  * Creates all of the log files for RBLogger. -newLogFileWithPath: should be 
  * changed to use the log file of choice for the application. 
  */
-@interface RBLogFileFactory : RBSingleton
+@interface RBLogFileFactory : NSObject
 
 /**
  * Returns an RBLogFile that has been implicitly retained by the caller.
@@ -44,6 +43,11 @@
 /**
  * Returns the shared instance.
  */
-+ (RBLogFileFactory *)sharedFactory;
++ (RBLogFileFactory *)sharedFactory __attribute__((deprecated));
+
+/**
+ * Returns the shared instance.
+ */
++ (RBLogFileFactory *)defaultFactory;
 
 @end

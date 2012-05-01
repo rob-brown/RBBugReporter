@@ -9,6 +9,8 @@
 #import "RBEmailBuilder.h"
 #import "RBAttachment.h"
 
+// iOS-specific class
+#if TARGET_OS_IPHONE
 
 @implementation RBReportEmailerVC
 
@@ -72,3 +74,5 @@
 }
 
 @end
+
+#endif

@@ -24,10 +24,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "RBSingleton.h"
 #import "RBLogFile.h"
 
-@interface RBLogger : RBSingleton
+@interface RBLogger : NSObject
 
 /**
  * A dispatch queue used for serializing requests. If you call a method in this 
@@ -93,6 +92,14 @@
  *
  * @return The singleton instance.
  */
-+ (RBLogger *) sharedLogger;
++ (RBLogger *)sharedLogger __attribute__((deprecated));
+
+
+/**
+ * Returns the shared instance.
+ *
+ * @return The shared instance.
+ */
++ (RBLogger *)defaultLogger;
 
 @end

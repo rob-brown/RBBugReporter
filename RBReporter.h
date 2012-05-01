@@ -23,9 +23,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <TargetConditionals.h>
 
-#import "RBSingleton.h"
 #import "RBEmailBuilder.h"
+
+
+// iOS-specific imports. 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 
 /**
  * A class for generating reports, logging errors, etc. Includes support for 
@@ -39,6 +46,8 @@
 // -----------------------------------------------------------------------------
 // Reporting/Logging Methods
 // -----------------------------------------------------------------------------
+
+#if TARGET_OS_IPHONE
 
 /**
  * Generates and presents the email composer modally. This is 3.0 compatible.
@@ -58,6 +67,8 @@
  * @param builder The email builder to use to generate the email report.
  */
 + (void)presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder;
+
+#endif
 
 /**
  * Presents a simple alert view with only a cancel button with no actions. Used

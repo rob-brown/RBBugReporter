@@ -26,27 +26,29 @@
 
 #import "RBExtendedLogFile.h"
 
-/// The singleton instance.
-static RBLogFileFactory * sharedFactory = nil;
-
 
 @implementation RBLogFileFactory
 
 - (id<RBLogFile>)newLogFileWithPath:(NSString *)path {
-    
     return [[RBExtendedLogFile alloc] initWithFilePath:path];
 }
 
 #pragma mark - Singleton methods
 
 + (RBLogFileFactory *)sharedFactory {
+    return [self defaultFactory];
+}
+
++ (RBLogFileFactory *)defaultFactory {
+    
+    static RBLogFileFactory * _defaultFactory = nil;
     
     @synchronized(self) {
-    
-        if (!sharedFactory)
-            sharedFactory = [super sharedInstance];
         
-        return sharedFactory;
+        if (!_defaultFactory)
+            _defaultFactory = [self new];
+        
+        return _defaultFactory;
     }
 }
 

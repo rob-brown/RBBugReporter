@@ -81,7 +81,6 @@
         [self setDeviceHeader:@"[[Device Info]]"];
         [self setCommentMsg:@"\n\n\n\n\n--------------------\nAdd any additional comments above, such as how to reproduce the bug.\n"];
         [self setDeviceMsg:[[self class] deviceInfoString]];
-    
     }
 }
 
@@ -97,6 +96,8 @@
 
 + (NSString *)deviceInfoString {
     
+#if TARGET_OS_IPHONE
+    
     UIDevice * device = [UIDevice currentDevice];
     NSString * osName = [device systemName];
     NSString * osVersion = [device systemVersion];
@@ -107,6 +108,15 @@
             osName, 
             osVersion, 
             deviceModel];
+    
+#else
+    
+    // TODO: Make a better string for Mac. 
+    
+    return @"Mac OS X";
+    
+#endif
+    
 }
 
 @end

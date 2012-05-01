@@ -5,8 +5,15 @@
 //  Copyright 2011 Robert Brown. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <TargetConditionals.h>
+
+
+// iOS-specific class
+#if TARGET_OS_IPHONE
+
 #import <MessageUI/MFMailComposeViewController.h>
+#import <UIKit/UIKit.h>
+
 
 @protocol RBEmailBuilder;
 
@@ -15,3 +22,5 @@
 - (id)initWithEmailBuilder:(id<RBEmailBuilder>)builder;
 
 @end
+
+#endif

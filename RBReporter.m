@@ -27,15 +27,25 @@
 #import "RBReporter.h"
 #import "RBLogger.h"
 #import "RBAttachment.h"
-#import "UIApplication+RBExtras.h"
 #import "NSString+RBExtras.h"
 #import "RBReportEmailerVC.h"
 
+// iOS-specific imports
+#if TARGET_OS_IPHONE
+#import "UIApplication+RBExtras.h"
+#endif
+
+// Flurry imports
 #if defined(FLURRY)
 #import "FlurryAPI.h"
 #endif
 
 @implementation RBReporter
+
+
+#pragma mark - iOS email methods
+
+#if TARGET_OS_IPHONE
 
 + (void) presentBugReportComposerWithBuilder:(id<RBEmailBuilder>)builder inNavController:(UINavigationController *)navController {
     
@@ -59,7 +69,14 @@
     [self presentBugReportComposerWithBuilder:builder inNavController:nil];
 }
 
+#endif
+
+
+#pragma mark - Alert methods
+
 + (void) presentAlertWithTitle:(NSString *)title message:(NSString *)message {
+    
+#if TARGET_OS_IPHONE
     
     dispatch_async(dispatch_get_main_queue(), ^{
         UIAlertView * alert = [[UIAlertView alloc] initWithTitle:title 
@@ -69,6 +86,15 @@
                                                otherButtonTitles:nil];
         [alert show];
     });
+    
+#else
+    
+    // TODO: Add some kind of Mac-style alert here. 
+    
+    return;
+    
+#endif
+    
 }
 
 
@@ -79,7 +105,7 @@
     if (!error) return;
     
     NSLog(@"%@", [NSString stringWithError:error]);
-    [[RBLogger sharedLogger] logError:error];
+    [[RBLogger defaultLogger] logError:error];
 }
 
 + (void)logException:(NSException *)exception {
@@ -87,7 +113,7 @@
     if (!exception) return;
     
     NSLog(@"%@", [NSString stringWithException:exception]);
-    [[RBLogger sharedLogger] logException:exception];
+    [[RBLogger defaultLogger] logException:exception];
 }
 
 + (void)logMessage:(NSString *)msg {
@@ -95,7 +121,7 @@
     if (!msg) return;
     
     NSLog(@"%@", msg);
-    [[RBLogger sharedLogger] logMessage:msg];
+    [[RBLogger defaultLogger] logMessage:msg];
 }
 
 + (void)logDebugMessage:(NSString *)msg {

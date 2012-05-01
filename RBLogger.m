@@ -86,9 +86,6 @@ static NSString * const kLogFileDirectoryName = @"LogFiles";
 @end
 
 
-/// The singleton instance.
-static RBLogger * sharedLogger = nil;
-
 @implementation RBLogger
 
 @synthesize dateFormatter, loggerQueue;
@@ -116,7 +113,7 @@ static RBLogger * sharedLogger = nil;
     // Gets the file path with the given date.
     NSString * filePath = [[self class] logFilePathForDate:date];
     
-    return [[RBLogFileFactory sharedFactory] newLogFileWithPath:filePath];
+    return [[RBLogFileFactory defaultFactory] newLogFileWithPath:filePath];
 }
 
 - (id<RBLogFile>)currentLogFile {
@@ -127,7 +124,7 @@ static RBLogger * sharedLogger = nil;
 + (NSString *)logFilePathForDate:(NSDate *)date {
     
     // Generates the file name.
-    NSString * formattedDate = [[[self sharedLogger] dateFormatter] stringFromDate:date];
+    NSString * formattedDate = [[[self defaultLogger] dateFormatter] stringFromDate:date];
     NSString * fileName = [NSString stringWithFormat:@"LogFile%@.%@", formattedDate, kLogFileExtension];
     
     // Generates an array of path components.
@@ -219,17 +216,23 @@ static RBLogger * sharedLogger = nil;
 #pragma mark - Singleton methods
 
 + (RBLogger *)sharedLogger {
+    return [self defaultLogger];
+}
+
++ (RBLogger *)defaultLogger {
+    
+    static RBLogger * _defaultLogger = nil;
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedLogger = [super sharedInstance];
+        _defaultLogger = [self new];
         
         [self createLogFileDirectory];
         
         // Sets up the dispatch queue.
         dispatch_queue_t queue = dispatch_queue_create("com.RobertBrown.RBLoggerQueue", NULL);
         dispatch_set_target_queue(queue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
-        [sharedLogger setLoggerQueue:queue];
+        [_defaultLogger setLoggerQueue:queue];
         
         // Auto-purges old log files if activated.
         if (kAutoPurgeLogFiles) {
@@ -239,7 +242,7 @@ static RBLogger * sharedLogger = nil;
         }
     });
     
-    return sharedLogger;
+    return _defaultLogger;
 }
 
 @end
